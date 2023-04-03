@@ -1,5 +1,92 @@
+import java.util.Arrays;
+
 public class Main {
+
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        int S = 0, C = 1, quanT = 0;
+
+        try{
+            for (int i = 0; i < args.length; i++){
+                switch (args[i]){
+                    case "-S":
+                        try {
+                            S = Integer.parseInt(args[++i]);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException(
+                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            throw new IllegalArgumentException(
+                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                        }
+                        if(S < 1 || S > 4){
+                            throw new NumberFormatException(
+                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                        }
+                        else if (S == 2){
+                            try {
+                                quanT = Integer.parseInt(args[++i]);
+                            } catch (NumberFormatException e) {
+                                throw new IllegalArgumentException(
+                                        "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                            } catch (ArrayIndexOutOfBoundsException e){
+                                throw new IllegalArgumentException(
+                                        "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                            }
+                            if(quanT < 2 || quanT > 10){
+                                throw new NumberFormatException(
+                                        "ERROR: INVALID ALGORITHM NUMBER; OUT OF RANGE");
+                            }
+                        }
+                        break;
+
+                    // if there is the argument '-C', there must be a number following
+                    case "-C":
+                        try {
+                            C = Integer.parseInt(args[++i]);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException(
+                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                        }
+                        catch (ArrayIndexOutOfBoundsException e){
+                            throw new IllegalArgumentException(
+                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                        }
+                }
+            }
+            if( S == 4 && C > 1){
+                System.out.println(
+                        "\nWARNING: CORES WILL BE IGNORED FOR PREEMPTIVE SHORTEST JOB FIRST AND CHANGED TO 1"
+                );
+                C = 1;
+            }
+            // call scheduler
+            System.out.println(
+                            "\n\tScheduler: " + S +
+                            "\n\tTime Quantum: " + quanT +
+                            "\n\tCores: " + C
+            );
+
+        } catch (NumberFormatException e) {
+            System.out.println(
+                    e +
+                            "\n\nValid Parameters:" +
+                            "\n\tScheduler:   1 - 4" +
+                            "\n\tTime Quantum: 2 - 10" +
+                            "\n\tCores:       1 - 4"
+            );
+        } catch (IllegalArgumentException e){
+            System.out.println(
+                    e +
+                            "\n\nValid Arguments: " +
+                            "\n\t-S # : specifies algorithm selection (required)" +
+                            "\n\t\t1 - First Come First Serve" +
+                            "\n\t\t2 - Round Robin (requires time quantum specification)" +
+                            "\n\t\t3 - Non-Preemptive Shortest Job First" +
+                            "\n\t\t4 - Preemptive Shortest Job First" +
+                            "\n\t-C # : specifies number of cores to be utilized (optional)" +
+                            "\n\t\t- Ignored for Preemptive Shortest Job First (#4)" +
+                            "\n\t\t- Defaults to one core if not specified"
+            );
+        }
     }
 }
