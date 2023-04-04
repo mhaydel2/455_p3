@@ -1,5 +1,5 @@
 import java.util.Arrays;
-
+// Done by Milan Haydel C00419477
 public class Main {
 
     public static void main(String[] args) {
@@ -59,12 +59,12 @@ public class Main {
                 );
                 C = 1;
             }
-            // call scheduler
             System.out.println(
                             "\n\tScheduler: " + S +
                             "\n\tTime Quantum: " + quanT +
                             "\n\tCores: " + C
             );
+            // call scheduler
 
         } catch (NumberFormatException e) {
             System.out.println(
