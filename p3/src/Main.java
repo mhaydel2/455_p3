@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.util.Scanner;
+
 // Done by Milan Haydel C00419477
 public class Main {
 
@@ -65,6 +67,7 @@ public class Main {
                             "\n\tCores: " + C
             );
             // call scheduler
+            new Scheduler(S, quanT, C);
 
         } catch (NumberFormatException e) {
             System.out.println(
