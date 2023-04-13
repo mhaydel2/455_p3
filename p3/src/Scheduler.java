@@ -8,11 +8,19 @@ public class Scheduler {
 
     // ArrayList for ready queue to add task threads to
     static ArrayList<Task> queue = new ArrayList<>();
+    static ArrayList<DC> dc = new ArrayList<>();
+    static Semaphore[] mtx;
 
-    // taskCount keeps track of what task ID to make for
-    // instances where new tasks are made at different
-    // times. This will be used (and only for) PSJF
-    static int taskCount = 0;
+    /*
+     taskCount keeps track of what task ID to make for
+     instances where new tasks are made at different
+     times. This will be used (and only for) PSJF
+     */
+    /*
+     * core_dis is just a count of how many CPU cores/
+     * dispatchers we have in total to use in dispatcher
+     */
+    static int taskCount = 0, core_dis = 1;
 
     // NPSJF and PSJF will use a class that sorts the queue
     // of tasks
@@ -22,6 +30,14 @@ public class Scheduler {
     // class to make dispatchers and CPUs
 
     public Scheduler(int S, int Q, int C){
+        this.core_dis = C;
+        mtx = new Semaphore[C];
+        // there is an additional semaphore is CPU labelled 'cc'
+        // cpu mtx is used in dispatcher run and
+        // cc mtx is used in task run
+        for(int i = 0; i < C; i++){
+            mtx[i] = new Semaphore(1);
+        }
         // 'Q' Quantum is only used for RR (case 2)
         switch (S){
             case 1:
@@ -105,7 +121,7 @@ public class Scheduler {
     // have already started running on the CPU
 
     public void createTasks(int tNum){
-        System.out.println("Creating " + tNum + " tasks..");
+        System.out.println("Creating " + tNum + " task(s)..");
         for (int i = 0; i < tNum; i++){
             try {
                 qMtx.acquire();
@@ -139,5 +155,17 @@ public class Scheduler {
         System.out.println(
                 "\n----------------------------------------------------"
         );
+    }
+
+    public void forking(int c, int q, boolean p){
+        for (int i = 0; i < c; i++){
+            DC d = new DC(c, q, p);
+            Use.print(
+                    name,
+                    "Forking dispatcher " + i
+            );
+            dc.add(d);
+
+        }
     }
 }
