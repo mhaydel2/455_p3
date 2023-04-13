@@ -4,12 +4,13 @@ import java.util.concurrent.Semaphore;
 
 public class Scheduler {
     String name = "Main Thread";
+    // qMtx used in createTasks for the queue
     static Semaphore qMtx = new Semaphore(1);
 
     // ArrayList for ready queue to add task threads to
     static ArrayList<Task> queue = new ArrayList<>();
     static ArrayList<DC> dc = new ArrayList<>();
-    static Semaphore[] mtx;
+    static CPU[] cpu;
 
     /*
      taskCount keeps track of what task ID to make for
@@ -20,7 +21,7 @@ public class Scheduler {
      * core_dis is just a count of how many CPU cores/
      * dispatchers we have in total to use in dispatcher
      */
-    static int taskCount = 0, core_dis = 1;
+    static int taskCount = 0, core_dis = 1, pc;
 
     // NPSJF and PSJF will use a class that sorts the queue
     // of tasks
@@ -31,12 +32,12 @@ public class Scheduler {
 
     public Scheduler(int S, int Q, int C){
         this.core_dis = C;
-        mtx = new Semaphore[C];
+        cpu = new CPU[C];
         // there is an additional semaphore is CPU labelled 'cc'
         // cpu mtx is used in dispatcher run and
         // cc mtx is used in task run
         for(int i = 0; i < C; i++){
-            mtx[i] = new Semaphore(1);
+            cpu[i] = new CPU(i);
         }
         // 'Q' Quantum is only used for RR (case 2)
         switch (S){
@@ -165,7 +166,7 @@ public class Scheduler {
                     "Forking dispatcher " + i
             );
             dc.add(d);
-
+            // d.start();
         }
     }
 }
