@@ -5,7 +5,8 @@ import java.util.concurrent.Semaphore;
 public class Scheduler {
     String name = "Main Thread";
     // qMtx used in createTasks for the queue
-    static Semaphore qMtx = new Semaphore(1);
+    // cMtx used in Task
+    static Semaphore qMtx = new Semaphore(1), cMtx = new Semaphore(1);
 
     // ArrayList for ready queue to add task threads to
     static ArrayList<Task> queue = new ArrayList<>();
@@ -21,7 +22,7 @@ public class Scheduler {
      * core_dis is just a count of how many CPU cores/
      * dispatchers we have in total to use in dispatcher
      */
-    static int taskCount = 0, pc;
+    static int taskCount = 0;
 
     // NPSJF and PSJF will use a class that sorts the queue
     // of tasks
@@ -61,6 +62,7 @@ public class Scheduler {
         printQueue();
         // call DC using # of cores 'c'
         // fork dispatcher
+        forking(c, 0, false);
     }
 
     private void RR(int c, int q) {
@@ -68,6 +70,7 @@ public class Scheduler {
         printQueue();
         // call DC using # of cores 'c' and quantum
         // fork dispatcher
+        forking(c, q, false);
     }
 
     private void NPSJF(int c) {
@@ -124,11 +127,12 @@ public class Scheduler {
         System.out.println("Creating " + tNum + " task(s)..");
         for (int i = 0; i < tNum; i++){
             try {
+                Task t = new Task(taskCount);
                 qMtx.acquire();
-                queue.add(new Task(taskCount));
+                queue.add(t);
                 qMtx.release();
 
-                Use.print(name, "Added Task " + taskCount + " to queue");
+                Use.print(name, "Creating thread " + taskCount);
                 taskCount++;
             } catch (Exception e) {}
         }
@@ -143,8 +147,8 @@ public class Scheduler {
             qMtx.acquire();
             for(Task t : queue){
                 System.out.printf(
-                        "\n%-15s | BM: %2d; BC: %2d",
-                        t.name, t.burst, t.burstCount
+                        "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
+                        t.id, t.burst, t.burstCount
                 );
             }
             qMtx.release();
@@ -156,10 +160,10 @@ public class Scheduler {
 
     public void forking(int c, int q, boolean p){
         for (int i = 0; i < c; i++){
-            DC d = new DC(c, q, p);
+            DC d = new DC(i, q, p);
             Use.print(name, "Forking dispatcher " + i);
             dc.add(d);
-            // d.start();
+            d.start();
         }
     }
 }

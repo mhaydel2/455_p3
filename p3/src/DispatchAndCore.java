@@ -11,7 +11,7 @@ class DC extends Thread{
     // Dispatcher and Core in one thread
 
     String disName, cpuName;
-    int id, q;
+    static int id, q;
     boolean p = false;
 
     public DC(int C, int Q, boolean P){
@@ -62,10 +62,10 @@ class DC extends Thread{
     }
 
     public void load(CPU cpu, Task t){
-        t.setCPU(cpu);
+        int bursts = calculateBurst(t, q);
+        t.setCPU(cpu, bursts);
 
         if(!p){
-            int bursts = calculateBurst(t, q);
             //t.wait += Scheduler.pc - t.arr;
             t = cpu.burst(t, bursts);
 
@@ -76,14 +76,10 @@ class DC extends Thread{
         // is currently running
         // *** runs one burst at a time
         else{
-
             if(Scheduler.queue.size() != 0){
-
-                while(
-                        t.burst - t.burstCount
+                while(t.burst - t.burstCount
                                 <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount
-                                && t.burstCount < t.burst
-                ){
+                                && t.burstCount < t.burst){
                     t = cpu.burst(t, 1);
                 }
 
@@ -100,10 +96,14 @@ class DC extends Thread{
             }
         }
 
+        /*
+         * in the case of time quantum's, if the task has not completed its
+         * max bursts, add the tasks to the end of the task ready queue
+        */
         if(t.burstCount != t.burst){
             try {
                 Scheduler.qMtx.acquire();
-                t.arr = Scheduler.pc;
+                // t.arr = Scheduler.pc;
                 Scheduler.queue.add(t);
                 Scheduler.qMtx.release();
             } catch (Exception e) {}
@@ -129,7 +129,7 @@ class DC extends Thread{
 
 class CPU {
     String name;
-    int id, history = -1;
+    int id;
     Semaphore mtx = new Semaphore(1), cc = new Semaphore(0);
     boolean gtg = true;
 
