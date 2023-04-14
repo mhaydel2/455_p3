@@ -11,7 +11,7 @@ class DC extends Thread{
     // Dispatcher and Core in one thread
 
     String disName, cpuName;
-    int id, q;
+    static int id, q;
     boolean p = false;
 
     public DC(int C, int Q, boolean P){
@@ -76,14 +76,10 @@ class DC extends Thread{
         // is currently running
         // *** runs one burst at a time
         else{
-
             if(Scheduler.queue.size() != 0){
-
-                while(
-                        t.burst - t.burstCount
+                while(t.burst - t.burstCount
                                 <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount
-                                && t.burstCount < t.burst
-                ){
+                                && t.burstCount < t.burst){
                     t = cpu.burst(t, 1);
                 }
 

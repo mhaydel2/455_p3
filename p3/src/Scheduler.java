@@ -61,6 +61,7 @@ public class Scheduler {
         printQueue();
         // call DC using # of cores 'c'
         // fork dispatcher
+        forking(c, 0, false);
     }
 
     private void RR(int c, int q) {
@@ -128,7 +129,7 @@ public class Scheduler {
                 queue.add(new Task(taskCount));
                 qMtx.release();
 
-                Use.print(name, "Added Task " + taskCount + " to queue");
+                Use.print(name, "Creating thread " + taskCount);
                 taskCount++;
             } catch (Exception e) {}
         }
@@ -143,8 +144,8 @@ public class Scheduler {
             qMtx.acquire();
             for(Task t : queue){
                 System.out.printf(
-                        "\n%-15s | BM: %2d; BC: %2d",
-                        t.name, t.burst, t.burstCount
+                        "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
+                        t.id, t.burst, t.burstCount
                 );
             }
             qMtx.release();
@@ -156,10 +157,10 @@ public class Scheduler {
 
     public void forking(int c, int q, boolean p){
         for (int i = 0; i < c; i++){
-            DC d = new DC(c, q, p);
+            DC d = new DC(i, q, p);
             Use.print(name, "Forking dispatcher " + i);
             dc.add(d);
-            // d.start();
+            d.start();
         }
     }
 }

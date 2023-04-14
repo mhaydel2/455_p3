@@ -61,10 +61,23 @@ public class Main {
                 );
                 C = 1;
             }
+            System.out.print("\tScheduler: ");
+            switch (S){
+                case 1:
+                    System.out.print("FCFS");
+                    break;
+                case 2:
+                    System.out.print("RR");
+                    break;
+                case 3:
+                    System.out.print("NPSJF");
+                    break;
+                case 4:
+                    System.out.print("PSJF");
+                    break;
+            }
             System.out.println(
-                            "\n\tScheduler: " + S +
-                            "\n\tTime Quantum: " + quanT +
-                            "\n\tCores: " + C
+                    "\n\tTime Quantum: " + quanT + "\n\tCores: " + C
             );
             // call scheduler
             new Scheduler(S, quanT, C);

@@ -7,7 +7,7 @@ public class Task extends Thread {
         // that tasks run for [1-50] : burst
         super(String.valueOf(id));
         this.id = id;
-        this.name = "Task Thread " + id;
+        this.name = "Thread " + id;
         this.burst = Use.randNum(1,50);
     }
 
@@ -33,9 +33,14 @@ public class Task extends Thread {
 
         Use.print(
                 name,
-                "MB = " + burst +
-                        " CB = " + burstCount +
-                        " Target = " + (burst - burstCount)
+                // Max Burst
+                " MB=" + burst +
+                        // Current Burst
+                        " CB=" + burstCount +
+                        // Burst Target
+                        " BT=" + (burst - burstCount) +
+                        // Burst Goal
+                        " BG=" + (burstCount + DC.q)
         );
     }
 }
