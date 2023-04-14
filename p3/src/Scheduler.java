@@ -21,7 +21,7 @@ public class Scheduler {
      * core_dis is just a count of how many CPU cores/
      * dispatchers we have in total to use in dispatcher
      */
-    static int taskCount = 0, core_dis = 1, pc;
+    static int taskCount = 0, pc;
 
     // NPSJF and PSJF will use a class that sorts the queue
     // of tasks
@@ -31,7 +31,6 @@ public class Scheduler {
     // class to make dispatchers and CPUs
 
     public Scheduler(int S, int Q, int C){
-        this.core_dis = C;
         cpu = new CPU[C];
         // there is an additional semaphore is CPU labelled 'cc'
         // cpu mtx is used in dispatcher run and
@@ -129,10 +128,7 @@ public class Scheduler {
                 queue.add(new Task(taskCount));
                 qMtx.release();
 
-                Use.print(
-                        name,
-                        "Added Task " + taskCount + " to queue"
-                );
+                Use.print(name, "Added Task " + taskCount + " to queue");
                 taskCount++;
             } catch (Exception e) {}
         }
@@ -161,10 +157,7 @@ public class Scheduler {
     public void forking(int c, int q, boolean p){
         for (int i = 0; i < c; i++){
             DC d = new DC(c, q, p);
-            Use.print(
-                    name,
-                    "Forking dispatcher " + i
-            );
+            Use.print(name, "Forking dispatcher " + i);
             dc.add(d);
             // d.start();
         }

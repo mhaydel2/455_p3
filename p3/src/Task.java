@@ -15,6 +15,9 @@ public class Task extends Thread {
         super(String.valueOf(t.id));
         this.id = t.id;
         this.name = t.name;
+        this.burst = t.burst;
+        this.burstCount = t.burstCount;
+
     }
 
     public void run(){
