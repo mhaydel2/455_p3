@@ -1,6 +1,7 @@
 public class Task extends Thread {
     String name;
-    int id, burst, burstCount = 0;
+    int id, burst, burstCount = 0, wait = 0, arr;
+    CPU cpu;
     public Task(int id){
         // create variable for number of CPU burst time
         // that tasks run for [1-50] : burst
@@ -14,11 +15,27 @@ public class Task extends Thread {
         super(String.valueOf(t.id));
         this.id = t.id;
         this.name = t.name;
+        this.burst = t.burst;
+        this.burstCount = t.burstCount;
+
     }
 
     public void run(){
         while (burst > 0){
 
         }
+    }
+
+    public void setCPU(CPU cpu){
+        this.cpu = cpu;
+
+        wait += Scheduler.pc - arr;
+
+        Use.print(
+                name,
+                "MB = " + burst +
+                        " CB = " + burstCount +
+                        " Target = " + (burst - burstCount)
+        );
     }
 }
