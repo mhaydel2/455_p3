@@ -27,12 +27,18 @@ public class Task extends Thread {
         // the cc Semaphore is only used for bursts
         // it is released in CPU.burst and acquired in this
         // while loop before completing burst(s)
+        try{
+            Scheduler.cMtx.acquire();
         while (burst > 0){ // do not use this argument
 
-            // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire
+            // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
 
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
+            cpu.cc.acquire();
+
         }
+            Scheduler.cMtx.release();
+        } catch (Exception e) {}
     }
 
     public void setCPU(CPU cpu, int bg){
