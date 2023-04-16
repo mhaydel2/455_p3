@@ -1,4 +1,5 @@
-public class Task extends Thread {
+public class Task extends Thread implements Comparable<Task> {  // Chris version
+//public class Task extends Thread {  // Original
     String name;
     int id, burst, burstCount = 0;
     CPU cpu;
@@ -19,6 +20,20 @@ public class Task extends Thread {
         this.burstCount = t.burstCount;
 
     }
+
+    // Chris ---
+    public int getBurst() {
+        return burst;
+    }
+
+    @Override
+    public int compareTo(Task other) {
+        return this.burst - other.getBurst();
+    }
+    //[-1 if other > this, 0 if other = this, 1 if other < this]
+    //can be sorted by Collections.sort(ArrayList<TaskThreads>);
+
+    // ---
 
     public void run(){
         // use a try catch statement if you want with the while loop inside.
