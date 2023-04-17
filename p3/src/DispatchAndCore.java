@@ -41,8 +41,7 @@ class DC extends Thread{
 
                         Use.print(
                                 disName,
-                                "Loading Task " + t.id + " on CPU " + cpu.id +
-                                        "\n----------------------------------------------------"
+                                "\nRunning Process " + t.id
                         );
                         load(cpu, t);
                     } catch (IndexOutOfBoundsException e) {}

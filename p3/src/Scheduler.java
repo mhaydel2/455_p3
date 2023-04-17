@@ -3,48 +3,38 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.Semaphore;
 
+// Code by Milan Haydel C00419477 and Chris Walther C00408978
 public class Scheduler {
+    // Code from Milan Haydel C00419477 ---
     String name = "Main Thread";
+    static Semaphore qMtx = new Semaphore(1), cMtx = new Semaphore(1);
     // qMtx used in createTasks for the queue
     // cMtx used in Task
-    static Semaphore qMtx = new Semaphore(1), cMtx = new Semaphore(1);
 
-    // ArrayList for ready queue to add task threads to
     static ArrayList<Task> queue = new ArrayList<>();
+    // ArrayList for ready queue to add task threads to
     static ArrayList<DC> dc = new ArrayList<>();
     static CPU[] cpu;
-
-    // Code from Chris Walther C00408978 ---
-    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
-    // ---
-
+    static int taskCount = 0;
     /*
      taskCount keeps track of what task ID to make for
      instances where new tasks are made at different
      times. This will be used (and only for) PSJF
      */
-    /*
-     * core_dis is just a count of how many CPU cores/
-     * dispatchers we have in total to use in dispatcher
-     */
-    static int taskCount = 0;
+    // ---
 
-    // NPSJF and PSJF will use a class that sorts the queue
-    // of tasks
 
-    // class that prints the ready queue
+    // Code from Chris Walther C00408978 ---
+    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
+    // ---
 
-    // class to make dispatchers and CPUs
-
+    // Done by Milan Haydel C00419477
     public Scheduler(int S, int Q, int C){
         cpu = new CPU[C];
-        // there is an additional semaphore is CPU labelled 'cc'
-        // cpu mtx is used in dispatcher run and
-        // cc mtx is used in task run
         for(int i = 0; i < C; i++){
             cpu[i] = new CPU(i);
         }
-        // 'Q' Quantum is only used for RR (case 2)
+        // 'Q' Quantum variable is only used for RR (case 2)
         switch (S){
             case 1:
                 FCFS(C);
@@ -61,47 +51,36 @@ public class Scheduler {
         }
     }
 
-    // 4 separate classes for FCFS, RR, NPSJF, PSJF
+    // Code by Milan Haydel C00419477 and Chris Walther C00408978
     public void FCFS(int c){
         if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
-        //createTasks(Use.randNum(1,25));
-        //createTasks(5);  // Comment out for random operation
         printQueue();
-        // call DC using # of cores 'c'
-        // fork dispatcher
         forking(c, 0, false);
     }
 
+    // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void RR(int c, int q) {
         if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
-        //createTasks(Use.randNum(1,25));
-        //createTasks(5);  // Comment out for random operation
         printQueue();
-        // call DC using # of cores 'c' and quantum
-        // fork dispatcher
         forking(c, q, false);
     }
 
-    // Revised by Chris Walther C00408978
+    // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void NPSJF(int c) {
-        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
-        //createTasks(Use.randNum(1,25));
-        //createTasks(5);  // Comment out for random operation
-        printQueue();
         // Chris Walther C00408978 ---
+        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
+        //printQueue(); //Temporary to test output
         try {
             sortQueue();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        //printQueue(); //Temporary to test output
+        printQueue();
         // ---
-
-        // call DC using # of cores 'c'
-        // fork dispatcher
         forking(c, 0, false);
     }
 
+    // Code by Milan Haydel C00419477
     // Revised by Chris Walther C00408978
     private void PSJF(int c) {
         /*
@@ -115,9 +94,8 @@ public class Scheduler {
          * The new set of tasks (1-15) is the other half of the
          * tasks range: [1-25].
          */
+        // Code by Chris Walther C00408978 ---
         if (randomTasks){createTasks(Use.randNum(c,10));} else {createTasks(3);}
-        //createTasks(Use.randNum(c, 10));
-        //createTasks(3);  // Comment out for random operation
         //sortQueue();
         printQueue();
         try {
@@ -125,10 +103,8 @@ public class Scheduler {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        //printQueue();
-        // call DC using # of cores 'c' and boolean p
-        // fork dispatcher
-        forking(c, 0, true); //Chris
+        // ---
+        forking(c, 0, true);
         /*
          * if boolean 'p' is true (only true for PSJF) it is because
          * task should preempt the currently running task if its
@@ -141,9 +117,7 @@ public class Scheduler {
          */
 
         int n;
-        if (randomTasks){n = Use.randNum(1, 15);} else {n = 2;}
-        //int n = Use.randNum(1, 15);
-        //int n = 2;  // Comment out for random operation
+        if (randomTasks){n = Use.randNum(1, 15);} else {n = 2;} // Code by Chris Walther C00408978 ---
         while(n-- > 0){
             createTasks(1);
             //printQueue();
@@ -157,6 +131,9 @@ public class Scheduler {
         }
     }
 
+
+    // Code by Milan Haydel C00419477
+    // Revised by Chris Walther C00408978
 
     // class to create tasks for each implementation and adds
     // them to an ArrayList<Task> 'ready' queue and uses Semaphores
@@ -195,6 +172,7 @@ public class Scheduler {
         }
     }
 
+    // Code by Milan Haydel C00419477
     public void printQueue(){
         System.out.print(
                 "\n\n--------------------Ready Queue---------------------"
@@ -215,6 +193,7 @@ public class Scheduler {
         );
     }
 
+    // Code by Milan Haydel C00419477
     public void forking(int c, int q, boolean p){
         for (int i = 0; i < c; i++){
             DC d = new DC(i, q, p);
