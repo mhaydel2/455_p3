@@ -30,6 +30,7 @@ class DC extends Thread{
             );
 
             Scheduler.rMtx.release();
+            System.out.println("Release 1");
 
             int i = 0;
 
@@ -57,6 +58,7 @@ class DC extends Thread{
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
                 }
                 Scheduler.rMtx.release();
+                System.out.println("Release 2");
                 i++;
 
             }
@@ -131,6 +133,7 @@ class DC extends Thread{
                     Scheduler.sortQueue();
 
                     Scheduler.rMtx.release();
+                    System.out.println("Release 3");
                     Scheduler.printQueue();
                 } catch (Exception e) {}
             }
