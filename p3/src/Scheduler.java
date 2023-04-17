@@ -74,9 +74,18 @@ public class Scheduler {
         forking(c, q, false);
     }
 
+    // Revised by Chris Walther C00408978
     private void NPSJF(int c) {
         createTasks(Use.randNum(1,25));
         printQueue();
+        // Chris Walther C00408978 ---
+        try {
+            sortQueue();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        // ---
+
         // call DC using # of cores 'c'
         // fork dispatcher
         forking(c, 0, false); //Chris
@@ -183,6 +192,7 @@ public class Scheduler {
     }
 
     // Done by Chris Walther C00408978
+    // This method resorts the order of queue by descending order from the shortest burst time to longest.
     public void sortQueue() throws InterruptedException {
         //while (queue.size() > 0) {
         try {
