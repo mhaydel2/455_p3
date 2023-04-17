@@ -1,4 +1,4 @@
-public class Task extends Thread {
+public class Task extends Thread implements Comparable<Task> {
     String name;
     int id, burst, burstCount = 0;
     CPU cpu;
