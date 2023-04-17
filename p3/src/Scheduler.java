@@ -84,7 +84,7 @@ public class Scheduler {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        printQueue(); //Temporary to test output
+        //printQueue(); //Temporary to test output
         // ---
 
         // call DC using # of cores 'c'
