@@ -30,8 +30,8 @@ public class Task extends Thread {
         // while loop before completing burst(s)
         try{
 
-        while (burstCount<burst){
-            this.cpu.cc.acquire();
+        while (this.burstCount < this.burst && this.cpu.cc.tryAcquire()){
+
             // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
             Scheduler.cMtx.acquire();
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
