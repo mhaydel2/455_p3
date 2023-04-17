@@ -14,6 +14,10 @@ public class Scheduler {
     static ArrayList<DC> dc = new ArrayList<>();
     static CPU[] cpu;
 
+    // Code from Chris Walther C00408978 ---
+    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
+    // ---
+
     /*
      taskCount keeps track of what task ID to make for
      instances where new tasks are made at different
@@ -59,7 +63,8 @@ public class Scheduler {
 
     // 4 separate classes for FCFS, RR, NPSJF, PSJF
     public void FCFS(int c){
-        createTasks(Use.randNum(1,25));
+        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
+        //createTasks(Use.randNum(1,25));
         //createTasks(5);  // Comment out for random operation
         printQueue();
         // call DC using # of cores 'c'
@@ -68,7 +73,8 @@ public class Scheduler {
     }
 
     private void RR(int c, int q) {
-        createTasks(Use.randNum(1,25));
+        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
+        //createTasks(Use.randNum(1,25));
         //createTasks(5);  // Comment out for random operation
         printQueue();
         // call DC using # of cores 'c' and quantum
@@ -78,7 +84,8 @@ public class Scheduler {
 
     // Revised by Chris Walther C00408978
     private void NPSJF(int c) {
-        createTasks(Use.randNum(1,25));
+        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
+        //createTasks(Use.randNum(1,25));
         //createTasks(5);  // Comment out for random operation
         printQueue();
         // Chris Walther C00408978 ---
@@ -108,8 +115,9 @@ public class Scheduler {
          * The new set of tasks (1-15) is the other half of the
          * tasks range: [1-25].
          */
+        if (randomTasks){createTasks(Use.randNum(c,10));} else {createTasks(3);}
         //createTasks(Use.randNum(c, 10));
-        createTasks(3);  // Comment out for random operation
+        //createTasks(3);  // Comment out for random operation
         //sortQueue();
         printQueue();
         try {
@@ -132,7 +140,9 @@ public class Scheduler {
          * tasks required range: [1-25].
          */
 
-        int n = Use.randNum(1, 15);
+        int n;
+        if (randomTasks){n = Use.randNum(1, 15);} else {n = 2;}
+        //int n = Use.randNum(1, 15);
         //int n = 2;  // Comment out for random operation
         while(n-- > 0){
             createTasks(1);
@@ -161,12 +171,21 @@ public class Scheduler {
         for (int i = 0; i < tNum; i++){
             try {
                 Task t = new Task(taskCount);
-
-                // Chris Walther C00408978
-                // Comment out code for random operation. Uncomment out for Report Task 1 question  ---
-                //if (taskCount == 0){t.burst = 18;}else if (taskCount == 1){t.burst = 7;} else if (taskCount == 2){t.burst = 25;}else if (taskCount == 3){t.burst = 42;}else{t.burst = 21;}
+                // Code by Chris Walther C00408978 ---
+                if (!randomTasks) {
+                    if (taskCount == 0) {
+                        t.burst = 18;
+                    } else if (taskCount == 1) {
+                        t.burst = 7;
+                    } else if (taskCount == 2) {
+                        t.burst = 25;
+                    } else if (taskCount == 3) {
+                        t.burst = 42;
+                    } else {
+                        t.burst = 21;
+                    }
+                }
                 // ---
-
                 qMtx.acquire();
                 queue.add(t);
                 qMtx.release();
