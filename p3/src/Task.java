@@ -1,5 +1,4 @@
-public class Task extends Thread implements Comparable<Task> {  // Chris version
-//public class Task extends Thread {  // Original
+public class Task extends Thread {
     String name;
     int id, burst, burstCount = 0;
     CPU cpu;
@@ -18,6 +17,7 @@ public class Task extends Thread implements Comparable<Task> {  // Chris version
         this.name = t.name;
         this.burst = t.burst;
         this.burstCount = t.burstCount;
+        this.cpu = t.cpu;
 
     }
 
@@ -46,16 +46,16 @@ public class Task extends Thread implements Comparable<Task> {  // Chris version
         // it is released in CPU.burst and acquired in this
         // while loop before completing burst(s)
         try{
+
+        while (this.burstCount < this.burst && this.cpu.cc.tryAcquire()){
+
+            // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
             Scheduler.cMtx.acquire();
-            while (burst > 0){ // do not use this argument
-
-                // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
-
-                Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
-                cpu.cc.acquire();
-
-            }
+            Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
             Scheduler.cMtx.release();
+
+        }
+
         } catch (Exception e) {}
     }
 
