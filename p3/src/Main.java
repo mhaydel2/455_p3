@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        int S = 1, C = 1, quanT = 0;
+        int S = 0, C = 1, quanT = 0;
 
 
         try{

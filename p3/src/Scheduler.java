@@ -79,7 +79,7 @@ public class Scheduler {
         printQueue();
         // call DC using # of cores 'c'
         // fork dispatcher
-        //forking(c, 0, false); //Chris
+        forking(c, 0, false); //Chris
     }
 
     private void PSJF(int c) {

@@ -30,8 +30,7 @@ public class Task extends Thread implements Comparable<Task> {  // Chris version
     public int compareTo(Task other) {
         return this.burst - other.getBurst();
     }
-    //[-1 if other > this, 0 if other = this, 1 if other < this]
-    //can be sorted by Collections.sort(ArrayList<TaskThreads>);
+    //-1 if other > this, 0 if other = this, 1 if other < this
 
     // ---
 
@@ -42,12 +41,18 @@ public class Task extends Thread implements Comparable<Task> {  // Chris version
         // the cc Semaphore is only used for bursts
         // it is released in CPU.burst and acquired in this
         // while loop before completing burst(s)
-        while (burst > 0){ // do not use this argument
+        try{
+            Scheduler.cMtx.acquire();
+            while (burst > 0){ // do not use this argument
 
-            // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire
+                // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
 
-            Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
-        }
+                Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
+                cpu.cc.acquire();
+
+            }
+            Scheduler.cMtx.release();
+        } catch (Exception e) {}
     }
 
     public void setCPU(CPU cpu, int bg){
