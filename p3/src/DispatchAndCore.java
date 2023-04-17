@@ -30,10 +30,13 @@ class DC extends Thread{
             );
 
             Scheduler.rMtx.release();
+
             int i = 0;
 
-            while(Scheduler.queue.size() > 0){
-                Scheduler.rMtx.acquire();
+            while(Scheduler.tasksDone.get() != Scheduler.totalTasks){
+                if (Scheduler.queue.size() != 1) Scheduler.rMtx.acquire();
+                else Scheduler.finishedTsks.acquire();
+                // if it is empty, it needs to create the rest of the tasks
                 if(Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()){
                     CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
 
@@ -79,22 +82,26 @@ class DC extends Thread{
         // is currently running
         // *** runs one burst at a time
         else{
-            if(Scheduler.queue.size() != 0){
-                while(t.burst - t.burstCount
-                                <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount
-                                && t.burstCount < t.burst){
-                    t = cpu.burst(t, 1);
+            if(Scheduler.totalTasks > (Scheduler.tasksDone.get()+1)){
+                while(t.burstCount < t.burst){
+                    try {
+                        Scheduler.qMtx.acquire();
+                        if (t.burst - t.burstCount
+                                <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount)
+                            t = cpu.burst(t, 1);
+                        else {
+                            cpu.interrupt();
+                            Use.print(
+                                    disName,
+                                    "Kicked Task " + t.id
+                            );
+                            Scheduler.printQueue();
+                        }
+                        Scheduler.qMtx.release();
+                    } catch (InterruptedException e) {}
                 }
-
-                if(t.burstCount != t.burst){
-                    cpu.interrupt();
-                    Use.print(
-                            disName,
-                            "Kicked Task " + t.id
-                    );
-                }
-
             }else{
+                System.out.println("\n\n***taskCount == totalTasks***\n\n");
                 t = cpu.burst(t, t.burst - t.burstCount);
             }
         }
@@ -110,6 +117,7 @@ class DC extends Thread{
                 // t.arr = Scheduler.pc;
                 Scheduler.queue.add(t);
                 Scheduler.sortQueue();
+                Scheduler.printQueue();
                 Scheduler.qMtx.release();
             } catch (Exception e) {}
         }

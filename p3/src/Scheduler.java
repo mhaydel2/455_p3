@@ -2,6 +2,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // Code by Milan Haydel C00419477 and Chris Walther C00408978
 public class Scheduler {
@@ -9,7 +10,8 @@ public class Scheduler {
     String name = "Main Thread";
     static Semaphore qMtx = new Semaphore(1),
             cMtx = new Semaphore(1),
-            rMtx = new Semaphore(1);
+            rMtx = new Semaphore(1),
+            finishedTsks = new Semaphore(0);;
     // qMtx used in createTasks for the queue
     // cMtx used in Task
 
@@ -17,7 +19,8 @@ public class Scheduler {
     // ArrayList for ready queue to add task threads to
     static ArrayList<DC> dc = new ArrayList<>();
     static CPU[] cpu;
-    static int taskCount = 0;
+    static int taskCount = 0, totalTasks = 0;
+    static AtomicInteger tasksDone = new AtomicInteger(0);
     /*
      taskCount keeps track of what task ID to make for
      instances where new tasks are made at different
@@ -27,7 +30,7 @@ public class Scheduler {
 
 
     // Code from Chris Walther C00408978 ---
-    boolean randomTasks = false; // Set to false for handling Task 1 Question 1 and set to true standardly
+    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
     // ---
 
     // Done by Milan Haydel C00419477
@@ -55,14 +58,14 @@ public class Scheduler {
 
     // Code by Milan Haydel C00419477 and Chris Walther C00408978
     public void FCFS(int c){
-        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
+        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
         printQueue();
         forking(c, 0, false);
     }
 
     // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void RR(int c, int q) {
-        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
+        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
         printQueue();
         forking(c, q, false);
     }
@@ -70,7 +73,7 @@ public class Scheduler {
     // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void NPSJF(int c) {
         // Chris Walther C00408978 ---
-        if (randomTasks){createTasks(Use.randNum(1,25));} else {createTasks(5);}
+        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
         //printQueue(); //Temporary to test output
         try {
             sortQueue();
@@ -97,13 +100,24 @@ public class Scheduler {
          * tasks range: [1-25].
          */
         // Code by Chris Walther C00408978 ---
-        if (randomTasks){createTasks(Use.randNum(c,10));} else {createTasks(3);}
+        // Revised by Milan Haydel C00419477
+        if (randomTasks){
+            int m = Use.randNum(c,10);
+            totalTasks = totalTasks + m;
+            createTasks(m, false);
+        } else {createTasks(3, false); totalTasks = totalTasks + 3;}
+        int n;
+        if (randomTasks){
+            n = Use.randNum(1, 15);
+            totalTasks = totalTasks + n;
+        } else {n = 2; totalTasks = totalTasks + 2;}
         try {
             sortQueue();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         printQueue();
+        System.out.println("Total Threads: " + totalTasks);
         // ---
         forking(c, 0, true);
         /*
@@ -117,17 +131,15 @@ public class Scheduler {
          * tasks required range: [1-25].
          */
 
-        int n;
-        if (randomTasks){n = Use.randNum(1, 15);} else {n = 2;} // Code by Chris Walther C00408978
         while(n-- > 0){
-            createTasks(1);
+            createTasks(1, true);
             // Code by Chris Walther C00408978 ---
-            try {
+            /*try {
                 sortQueue();
+                printQueue();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
-            }
-            printQueue();
+            }*/
             // ---
         }
     }
@@ -143,7 +155,7 @@ public class Scheduler {
     // you must have tasks arriving after threads
     // have already started running on the CPU
 
-    public void createTasks(int tNum){
+    public void createTasks(int tNum, boolean n){
         // System.out.print("\nCreating " + tNum + " task(s)..");
         for (int i = 0; i < tNum; i++){
             try {
@@ -169,13 +181,18 @@ public class Scheduler {
                 qMtx.release();
 
                 Use.print(name, "Creating thread " + taskCount);
+                if (n){
+                    sortQueue();
+                    printQueue();
+                }
                 taskCount++;
+                if (taskCount == totalTasks) finishedTsks.release();
             } catch (Exception e) {}
         }
     }
 
     // Code by Milan Haydel C00419477
-    public void printQueue(){
+    public static void printQueue(){
         try {
             rMtx.acquire();
             System.out.print(

@@ -60,7 +60,9 @@ public class Task extends Thread implements Comparable<Task> {
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
             Scheduler.cMtx.release();
         }
-
+        if (this.burstCount == this.burst){
+            Scheduler.tasksDone.getAndIncrement();
+        }
         } catch (Exception e) {}
         //getEndTime();
     }
