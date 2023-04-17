@@ -89,7 +89,7 @@ public class Scheduler {
 
         // call DC using # of cores 'c'
         // fork dispatcher
-        forking(c, 0, false); //Chris
+        forking(c, 0, false);
     }
 
     // Revised by Chris Walther C00408978
