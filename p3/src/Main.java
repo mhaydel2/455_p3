@@ -15,7 +15,7 @@ public class Main {
         System.out.println("Timer end");
         System.out.println("Elapsed Time in milliseconds: "+ (end-start));
          */
-        boolean runtimeMeasure = true;
+        boolean runtimeMeasure = false;
         int S = 0, C = 1, quanT = 0;
 
 

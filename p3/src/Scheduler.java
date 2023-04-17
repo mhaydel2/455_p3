@@ -15,7 +15,7 @@ public class Scheduler {
     static CPU[] cpu;
 
     // Code from Chris Walther C00408978 ---
-    boolean randomTasks = false; // Set to false for handling Task 1 Question 1 and set to true standardly
+    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
     // ---
 
     /*
