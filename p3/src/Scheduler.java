@@ -60,6 +60,7 @@ public class Scheduler {
     // 4 separate classes for FCFS, RR, NPSJF, PSJF
     public void FCFS(int c){
         createTasks(Use.randNum(1,25));
+        //createTasks(5);  // Comment out for random operation
         printQueue();
         // call DC using # of cores 'c'
         // fork dispatcher
@@ -68,6 +69,7 @@ public class Scheduler {
 
     private void RR(int c, int q) {
         createTasks(Use.randNum(1,25));
+        //createTasks(5);  // Comment out for random operation
         printQueue();
         // call DC using # of cores 'c' and quantum
         // fork dispatcher
@@ -77,6 +79,7 @@ public class Scheduler {
     // Revised by Chris Walther C00408978
     private void NPSJF(int c) {
         createTasks(Use.randNum(1,25));
+        //createTasks(5);  // Comment out for random operation
         printQueue();
         // Chris Walther C00408978 ---
         try {
@@ -106,7 +109,7 @@ public class Scheduler {
          * tasks range: [1-25].
          */
         //createTasks(Use.randNum(c, 10));
-        createTasks(4);
+        createTasks(3);  // Comment out for random operation
         //sortQueue();
         printQueue();
         try {
@@ -130,7 +133,7 @@ public class Scheduler {
          */
 
         int n = Use.randNum(1, 15);
-        n= 4;
+        //int n = 2;  // Comment out for random operation
         while(n-- > 0){
             createTasks(1);
             //printQueue();
@@ -158,6 +161,12 @@ public class Scheduler {
         for (int i = 0; i < tNum; i++){
             try {
                 Task t = new Task(taskCount);
+
+                // Chris Walther C00408978
+                // Comment out code for random operation. Uncomment out for Report Task 1 question  ---
+                //if (taskCount == 0){t.burst = 18;}else if (taskCount == 1){t.burst = 7;} else if (taskCount == 2){t.burst = 25;}else if (taskCount == 3){t.burst = 42;}else{t.burst = 21;}
+                // ---
+
                 qMtx.acquire();
                 queue.add(t);
                 qMtx.release();
