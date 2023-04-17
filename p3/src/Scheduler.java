@@ -98,12 +98,13 @@ public class Scheduler {
          */
         // Code by Chris Walther C00408978 ---
         if (randomTasks){createTasks(Use.randNum(c,10));} else {createTasks(3);}
+        printQueue();
         try {
             sortQueue();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        printQueue();
+        //printQueue();
         // ---
         forking(c, 0, true);
         /*
