@@ -26,9 +26,13 @@ public class Task extends Thread implements Comparable<Task> {  // Chris version
         return burst;
     }
 
+    public int getBurstCount() {
+        return burstCount;
+    }
+
     @Override
     public int compareTo(Task other) {
-        return this.burst - other.getBurst();
+        return this.burst - other.getBurst() - other.getBurstCount();
     }
     //-1 if other > this, 0 if other = this, 1 if other < this
 
