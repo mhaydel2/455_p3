@@ -105,7 +105,8 @@ public class Scheduler {
          * The new set of tasks (1-15) is the other half of the
          * tasks range: [1-25].
          */
-        createTasks(Use.randNum(c, 10));
+        //createTasks(Use.randNum(c, 10));
+        createTasks(4);
         //sortQueue();
         printQueue();
         try {
@@ -129,8 +130,10 @@ public class Scheduler {
          */
 
         int n = Use.randNum(1, 15);
+        n= 4;
         while(n-- > 0){
             createTasks(1);
+            //printQueue();
             //sortQueue
             try {
                 sortQueue();
