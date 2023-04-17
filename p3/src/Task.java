@@ -17,6 +17,7 @@ public class Task extends Thread {
         this.name = t.name;
         this.burst = t.burst;
         this.burstCount = t.burstCount;
+        this.cpu = t.cpu;
 
     }
 
@@ -28,16 +29,16 @@ public class Task extends Thread {
         // it is released in CPU.burst and acquired in this
         // while loop before completing burst(s)
         try{
-            Scheduler.cMtx.acquire();
-        while (burst > 0){ // do not use this argument
 
+        while (burstCount<burst){
+            this.cpu.cc.acquire();
             // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
-
+            Scheduler.cMtx.acquire();
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
-            cpu.cc.acquire();
+            Scheduler.cMtx.release();
 
         }
-            Scheduler.cMtx.release();
+
         } catch (Exception e) {}
     }
 
