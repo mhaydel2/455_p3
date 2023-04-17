@@ -29,6 +29,13 @@ public class Task extends Thread implements Comparable<Task> {
     public int getBurstCount() {
         return burstCount;
     }
+    /*
+    public long getEndTime() {
+        long end = System.currentTimeMillis();
+        System.out.println("Timer end");
+        return end;
+    }
+     */
 
     @Override
     public int compareTo(Task other) {
@@ -52,10 +59,10 @@ public class Task extends Thread implements Comparable<Task> {
             Scheduler.cMtx.acquire();
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
             Scheduler.cMtx.release();
-
         }
 
         } catch (Exception e) {}
+        //getEndTime();
     }
 
     public void setCPU(CPU cpu, int bg){
