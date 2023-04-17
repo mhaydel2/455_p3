@@ -44,7 +44,8 @@ class DC extends Thread{
                     try {
                         Scheduler.qMtx.acquire();
                         Task t = Scheduler.queue.remove(0);
-                        Scheduler.qMtx.release();
+                        if (!p) Scheduler.qMtx.release();
+                        // hold the qmtx and release it after each burst
 
                         System.out.println();
                         Use.print(
@@ -102,8 +103,15 @@ class DC extends Thread{
                                     "\nMaxBurst: " + Scheduler.queue.get(0).burst +
                                     "\nCurrentBurst: " + Scheduler.queue.get(0).burstCount +
                                     "\nAfter: " + Scheduler.queue.get(1).name);
+                            Scheduler.qMtx.release();
                             break;
                         }
+                    Scheduler.qMtx.release();
+                    try {
+                        if (t.burstCount != t.burst) Scheduler.qMtx.acquire();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }else{
                 System.out.println("\n\n***taskCount == totalTasks***\n\n");
@@ -124,7 +132,6 @@ class DC extends Thread{
 
                     Scheduler.rMtx.release();
                     Scheduler.printQueue();
-                    Scheduler.rMtx.acquire();
                 } catch (Exception e) {}
             }
         }
