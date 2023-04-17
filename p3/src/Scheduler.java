@@ -91,6 +91,7 @@ public class Scheduler {
         forking(c, 0, false); //Chris
     }
 
+    // Revised by Chris Walther C00408978
     private void PSJF(int c) {
         /*
          * The number of tasks for PSJF specifically (and only)
@@ -113,7 +114,7 @@ public class Scheduler {
         printQueue();
         // call DC using # of cores 'c' and boolean p
         // fork dispatcher
-        //forking(c, 0, true); //Chris
+        forking(c, 0, true); //Chris
         /*
          * if boolean 'p' is true (only true for PSJF) it is because
          * task should preempt the currently running task if its
@@ -201,6 +202,7 @@ public class Scheduler {
             qMtx.release();
         } catch (Exception e) {}
         //}
+
 
 
 

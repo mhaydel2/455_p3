@@ -21,7 +21,7 @@ public class Task extends Thread implements Comparable<Task> {  // Chris version
 
     }
 
-    // Chris ---
+    // Done by Chris Walther C00408978 ---
     public int getBurst() {
         return burst;
     }
