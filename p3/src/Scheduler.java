@@ -180,11 +180,13 @@ public class Scheduler {
                 queue.add(t);
                 qMtx.release();
 
-                Use.print(name, "Creating thread " + taskCount);
                 if (n){
                     sortQueue();
                     printQueue();
+                    Use.print(name, "Creating thread " + taskCount);
                 }
+                else Use.print(name, "Creating thread " + taskCount);
+
                 taskCount++;
                 if (taskCount == totalTasks) finishedTsks.release();
             } catch (Exception e) {}

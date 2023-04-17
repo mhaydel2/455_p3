@@ -34,8 +34,9 @@ class DC extends Thread{
             int i = 0;
 
             while(Scheduler.tasksDone.get() != Scheduler.totalTasks){
-                if (Scheduler.queue.size() != 1) Scheduler.rMtx.acquire();
-                else Scheduler.finishedTsks.acquire();
+                System.out.println("\n\n***queue.size() = " + Scheduler.queue.size() + "\n\n");
+                if (Scheduler.queue.size() == 1) Scheduler.finishedTsks.acquire();
+                Scheduler.rMtx.acquire();
                 // if it is empty, it needs to create the rest of the tasks
                 if(Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()){
                     CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
@@ -43,13 +44,13 @@ class DC extends Thread{
                     try {
                         Scheduler.qMtx.acquire();
                         Task t = Scheduler.queue.remove(0);
+                        Scheduler.qMtx.release();
 
                         System.out.println();
                         Use.print(
                                 disName,
                                 "Running Process " + t.id
                         );
-                        Scheduler.qMtx.release();
                         load(cpu, t);
                     } catch (IndexOutOfBoundsException e) {}
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
@@ -75,6 +76,7 @@ class DC extends Thread{
         if(!p){
             t = cpu.burst(t, bursts);
 
+
         }
         // this is what p determines if true (only true for PSJF)
         // AKA task should preempt the currently running task if its
@@ -84,42 +86,47 @@ class DC extends Thread{
         else{
             if(Scheduler.totalTasks > (Scheduler.tasksDone.get()+1)){
                 while(t.burstCount < t.burst){
-                    try {
-                        Scheduler.qMtx.acquire();
                         if (t.burst - t.burstCount
-                                <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount)
+                                <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount) {
+                            //System.out.println("\nnext in queue id: " + Scheduler.queue.get(0).id);
                             t = cpu.burst(t, 1);
+                        }
                         else {
                             cpu.interrupt();
                             Use.print(
                                     disName,
                                     "Kicked Task " + t.id
                             );
-                            Scheduler.printQueue();
+                            System.out.println("\nNext in queue id: " +
+                                    Scheduler.queue.get(0).name +
+                                    "\nMaxBurst: " + Scheduler.queue.get(0).burst +
+                                    "\nCurrentBurst: " + Scheduler.queue.get(0).burstCount +
+                                    "\nAfter: " + Scheduler.queue.get(1).name);
+                            break;
                         }
-                        Scheduler.qMtx.release();
-                    } catch (InterruptedException e) {}
                 }
             }else{
                 System.out.println("\n\n***taskCount == totalTasks***\n\n");
                 t = cpu.burst(t, t.burst - t.burstCount);
             }
-        }
+            /*
+             * if the task has not completed its
+             * max bursts, add the tasks to the
+             * end of the task ready queue
+             */
+            if(t.burstCount != t.burst){
+                try {
+                    Scheduler.qMtx.acquire();
+                    // t.arr = Scheduler.pc;
+                    Scheduler.queue.add(t);
+                    Scheduler.qMtx.release();
+                    Scheduler.sortQueue();
 
-        /*
-         * if the task has not completed its
-         * max bursts, add the tasks to the
-         * end of the task ready queue
-        */
-        if(t.burstCount != t.burst){
-            try {
-                Scheduler.qMtx.acquire();
-                // t.arr = Scheduler.pc;
-                Scheduler.queue.add(t);
-                Scheduler.sortQueue();
-                Scheduler.printQueue();
-                Scheduler.qMtx.release();
-            } catch (Exception e) {}
+                    Scheduler.rMtx.release();
+                    Scheduler.printQueue();
+                    Scheduler.rMtx.acquire();
+                } catch (Exception e) {}
+            }
         }
     }
 
