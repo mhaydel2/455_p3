@@ -73,7 +73,7 @@ public class Task extends Thread implements Comparable<Task> {
         Use.print(
                 name,
                 // Max Burst
-                " MB=" + burst +
+                "MB=" + burst +
                         // Current Burst
                         ", CB=" + burstCount +
                         // Burst Target

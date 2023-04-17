@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+// Code by Milan Haydel C00419477
 class DC extends Thread{
     /*
      * C : Cores
@@ -8,45 +9,49 @@ class DC extends Thread{
      * P : PSJF (uses shorter burst time)
      */
 
-    // Dispatcher and Core in one thread
-
-    String disName, cpuName;
+    String disName;
     static int id, q;
-    boolean p = false;
+    boolean p;
 
     public DC(int C, int Q, boolean P){
         super(String.valueOf(C));
         this.id = C;
         this.disName = "Dispatcher " + id;
-        // this.cpuName = "CPU " + id;
         this.q = Q;
         this.p = P;
     }
 
-    // depending on the selected algorithm,
-    // select a task from a ready queue and
-    // allow it to run on the CPU
     public void run(){
         try {
+            Scheduler.rMtx.acquire();
+            Use.print(
+                    disName,
+                    "Using CPU " + id
+            );
+
+            Scheduler.rMtx.release();
             int i = 0;
 
             while(Scheduler.queue.size() > 0){
+                Scheduler.rMtx.acquire();
                 if(Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()){
                     CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
 
                     try {
                         Scheduler.qMtx.acquire();
                         Task t = Scheduler.queue.remove(0);
-                        Scheduler.qMtx.release();
 
+                        System.out.println();
                         Use.print(
                                 disName,
-                                "\nRunning Process " + t.id
+                                "Running Process " + t.id
                         );
+                        Scheduler.qMtx.release();
                         load(cpu, t);
                     } catch (IndexOutOfBoundsException e) {}
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
                 }
+                Scheduler.rMtx.release();
                 i++;
 
             }
@@ -65,7 +70,6 @@ class DC extends Thread{
         t.setCPU(cpu, bursts);
 
         if(!p){
-            //t.wait += Scheduler.pc - t.arr;
             t = cpu.burst(t, bursts);
 
         }
@@ -96,14 +100,16 @@ class DC extends Thread{
         }
 
         /*
-         * in the case of time quantum's, if the task has not completed its
-         * max bursts, add the tasks to the end of the task ready queue
+         * if the task has not completed its
+         * max bursts, add the tasks to the
+         * end of the task ready queue
         */
         if(t.burstCount != t.burst){
             try {
                 Scheduler.qMtx.acquire();
                 // t.arr = Scheduler.pc;
                 Scheduler.queue.add(t);
+                Scheduler.sortQueue();
                 Scheduler.qMtx.release();
             } catch (Exception e) {}
         }
@@ -126,6 +132,7 @@ class DC extends Thread{
     }
 }
 
+// Code by Milan Haydel C00419477
 class CPU {
     String name;
     int id;

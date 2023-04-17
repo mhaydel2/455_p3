@@ -7,7 +7,9 @@ import java.util.concurrent.Semaphore;
 public class Scheduler {
     // Code from Milan Haydel C00419477 ---
     String name = "Main Thread";
-    static Semaphore qMtx = new Semaphore(1), cMtx = new Semaphore(1);
+    static Semaphore qMtx = new Semaphore(1),
+            cMtx = new Semaphore(1),
+            rMtx = new Semaphore(1);
     // qMtx used in createTasks for the queue
     // cMtx used in Task
 
@@ -25,7 +27,7 @@ public class Scheduler {
 
 
     // Code from Chris Walther C00408978 ---
-    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
+    boolean randomTasks = false; // Set to false for handling Task 1 Question 1 and set to true standardly
     // ---
 
     // Done by Milan Haydel C00419477
@@ -96,13 +98,12 @@ public class Scheduler {
          */
         // Code by Chris Walther C00408978 ---
         if (randomTasks){createTasks(Use.randNum(c,10));} else {createTasks(3);}
-        //sortQueue();
-        printQueue();
         try {
             sortQueue();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        printQueue();
         // ---
         forking(c, 0, true);
         /*
@@ -117,17 +118,17 @@ public class Scheduler {
          */
 
         int n;
-        if (randomTasks){n = Use.randNum(1, 15);} else {n = 2;} // Code by Chris Walther C00408978 ---
+        if (randomTasks){n = Use.randNum(1, 15);} else {n = 2;} // Code by Chris Walther C00408978
         while(n-- > 0){
             createTasks(1);
-            //printQueue();
-            //sortQueue
+            // Code by Chris Walther C00408978 ---
             try {
                 sortQueue();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             printQueue();
+            // ---
         }
     }
 
@@ -143,7 +144,7 @@ public class Scheduler {
     // have already started running on the CPU
 
     public void createTasks(int tNum){
-        System.out.println("Creating " + tNum + " task(s)..");
+        // System.out.print("\nCreating " + tNum + " task(s)..");
         for (int i = 0; i < tNum; i++){
             try {
                 Task t = new Task(taskCount);
@@ -162,6 +163,7 @@ public class Scheduler {
                     }
                 }
                 // ---
+
                 qMtx.acquire();
                 queue.add(t);
                 qMtx.release();
@@ -174,23 +176,31 @@ public class Scheduler {
 
     // Code by Milan Haydel C00419477
     public void printQueue(){
-        System.out.print(
-                "\n\n--------------------Ready Queue---------------------"
-        );
-
         try {
-            qMtx.acquire();
-            for(Task t : queue){
-                System.out.printf(
-                        "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
-                        t.id, t.burst, t.burstCount
-                );
+            rMtx.acquire();
+            System.out.print(
+                    "\n\n--------------------Ready Queue---------------------"
+            );
+            try {
+                qMtx.acquire();
+                for (Task t : queue) {
+                    System.out.printf(
+                            "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
+                            t.id, t.burst, t.burstCount
+                    );
+                }
+                qMtx.release();
+            } catch (Exception e) {
+                System.out.println();
             }
-            qMtx.release();
-        } catch (Exception e) {}
-        System.out.println(
-                "\n----------------------------------------------------"
-        );
+            System.out.println(
+                    "\n----------------------------------------------------"
+            );
+            rMtx.release();
+        }
+        catch (Exception e) {
+            System.out.println();
+        }
     }
 
     // Code by Milan Haydel C00419477
@@ -205,7 +215,7 @@ public class Scheduler {
 
     // Done by Chris Walther C00408978
     // This method sorts the order of queue by descending order from the shortest burst time to longest.
-    public void sortQueue() throws InterruptedException {
+    public static void sortQueue() throws InterruptedException {
         //while (queue.size() > 0) {
         try {
             qMtx.acquire();
