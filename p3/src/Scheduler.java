@@ -107,12 +107,13 @@ public class Scheduler {
          */
         createTasks(Use.randNum(c, 10));
         //sortQueue();
+        printQueue();
         try {
             sortQueue();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        printQueue();
+        //printQueue();
         // call DC using # of cores 'c' and boolean p
         // fork dispatcher
         forking(c, 0, true); //Chris
