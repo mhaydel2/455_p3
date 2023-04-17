@@ -194,7 +194,7 @@ public class Scheduler {
     }
 
     // Done by Chris Walther C00408978
-    // This method resorts the order of queue by descending order from the shortest burst time to longest.
+    // This method sorts the order of queue by descending order from the shortest burst time to longest.
     public void sortQueue() throws InterruptedException {
         //while (queue.size() > 0) {
         try {
