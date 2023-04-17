@@ -13,7 +13,7 @@ public class Main {
         // Other code in between
         long end = System.currentTimeMillis();
         System.out.println("Timer end");
-        System.out.println("Elapsed Time in milliseconds: " + (end-start));
+        System.out.println("Elapsed Time in milliseconds: "+ (end-start));
          */
         int S = 0, C = 1, quanT = 0;
 
@@ -90,8 +90,15 @@ public class Main {
             System.out.println(
                     "\n\tTime Quantum: " + quanT + "\n\tCores: " + C
             );
+            // Time code by Chris Walther C00408978
+            // Comment out time code during normal operation and uncomment out for use on Task 1 Question 1
+            long start = System.currentTimeMillis();
+            System.out.println("Timer start");
             // call scheduler
             new Scheduler(S, quanT, C);
+            long end = System.currentTimeMillis();
+            System.out.println("Timer end");
+            System.out.println("Elapsed Time in milliseconds: "+ (end-start));
 
         } catch (NumberFormatException e) {
             System.out.println(
