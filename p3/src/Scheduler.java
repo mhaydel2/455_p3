@@ -20,12 +20,12 @@ public class Scheduler {
     static ArrayList<DC> dc = new ArrayList<>();
     static CPU[] cpu;
     static int taskCount = 0, totalTasks = 0;
-    static AtomicInteger tasksDone = new AtomicInteger(0);
     /*
      taskCount keeps track of what task ID to make for
      instances where new tasks are made at different
      times. This will be used (and only for) PSJF
      */
+    static AtomicInteger tasksDone = new AtomicInteger(0);
     // ---
 
 
@@ -108,14 +108,12 @@ public class Scheduler {
         if (randomTasks){
             int m = Use.randNum(c,10);
             totalTasks = m;
-            System.out.println("\nm = " + m + " " + totalTasks);
             createTasks(m, false);
         } else {createTasks(3, false); totalTasks = totalTasks + 3;}
         int n;
         if (randomTasks){
             n = Use.randNum(1, 15);
             totalTasks = totalTasks + n;
-            System.out.println("\nn = " + n + " " + totalTasks);
         } else {n = 2; totalTasks = totalTasks + 2;}
         try {
             sortQueue();
@@ -194,11 +192,11 @@ public class Scheduler {
                 else Use.print(name, "Creating thread " + taskCount);
 
                 taskCount++;
-                System.out.println("\nTasks Makde: " + taskCount + " Total Tasks to made:  " + totalTasks);
-                if (taskCount == totalTasks && n) {
+                System.out.print("\nTasks Made: " + taskCount + " Total Tasks to made:  " + totalTasks);
+                /*if (taskCount == totalTasks && n) {
                     System.out.println("release");
                     finishedTsks.release();
-                }
+                }*/
             } catch (Exception e) {}
         }
     }
@@ -207,24 +205,24 @@ public class Scheduler {
     public static void printQueue(){
         try {
             rMtx.acquire();
-            System.out.print(
-                    "\n\n--------------------Ready Queue---------------------"
-            );
             try {
                 qMtx.acquire();
+                System.out.print(
+                        "\n\n--------------------Ready Queue---------------------"
+                );
                 for (Task t : queue) {
                     System.out.printf(
                             "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
                             t.id, t.burst, t.burstCount
                     );
                 }
+                System.out.println(
+                        "\n----------------------------------------------------"
+                );
                 qMtx.release();
             } catch (Exception e) {
                 System.out.println();
             }
-            System.out.println(
-                    "\n----------------------------------------------------"
-            );
             rMtx.release();
         }
         catch (Exception e) {
@@ -247,7 +245,6 @@ public class Scheduler {
     public static void sortQueue() throws InterruptedException {
         try {
             qMtx.acquire();
-
             for(int i = 0; i < queue.size() - 1; i++){
                 for(int j = i + 1; j < queue.size(); j++){
                     if(
@@ -260,7 +257,6 @@ public class Scheduler {
                     }
                 }
             }
-
             qMtx.release();
         } catch (Exception e) {
         }
