@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+// Code by Milan Haydel C00419477
 class DC extends Thread{
     /*
      * C : Cores
@@ -8,55 +9,62 @@ class DC extends Thread{
      * P : PSJF (uses shorter burst time)
      */
 
-    // Dispatcher and Core in one thread
-
-    String disName, cpuName;
+    String disName;
     static int id, q;
-    boolean p = false;
+    boolean p;
 
     public DC(int C, int Q, boolean P){
         super(String.valueOf(C));
         this.id = C;
         this.disName = "Dispatcher " + id;
-        // this.cpuName = "CPU " + id;
         this.q = Q;
         this.p = P;
     }
 
-    // depending on the selected algorithm,
-    // select a task from a ready queue and
-    // allow it to run on the CPU
     public void run(){
         try {
+            Scheduler.rMtx.acquire();
+            Use.print(
+                    disName,
+                    "Using CPU " + id
+            );
+
+            Scheduler.rMtx.release();
+            System.out.println("Release 1");
+
             int i = 0;
 
-            while(Scheduler.queue.size() > 0){
+            while(Scheduler.tasksDone.get() != Scheduler.totalTasks){
+                if (Scheduler.queue.size() == 1) Scheduler.finishedTsks.acquire();
+                Scheduler.rMtx.acquire();
+                // if it is empty, it needs to create the rest of the tasks
                 if(Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()){
                     CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
 
                     try {
                         Scheduler.qMtx.acquire();
                         Task t = Scheduler.queue.remove(0);
-                        Scheduler.qMtx.release();
+                        if (!p) Scheduler.qMtx.release();
+                        // hold the qmtx and release it after each burst
 
+                        System.out.println();
                         Use.print(
                                 disName,
-                                "Loading Task " + t.id + " on CPU " + cpu.id +
-                                        "\n----------------------------------------------------"
+                                "Running Process " + t.id
                         );
                         load(cpu, t);
                     } catch (IndexOutOfBoundsException e) {}
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
                 }
+                Scheduler.rMtx.release();
+                System.out.println("Release 2");
                 i++;
 
             }
         } catch (Exception e) {
             System.out.println(
-                    "\n\n****************************************************" +
                             "\nSomething went wrong: " +
-                            "\n" + e +
-                            "\n****************************************************"
+                            "\n" + e
             );
         }
     }
@@ -66,8 +74,8 @@ class DC extends Thread{
         t.setCPU(cpu, bursts);
 
         if(!p){
-            //t.wait += Scheduler.pc - t.arr;
             t = cpu.burst(t, bursts);
+
 
         }
         // this is what p determines if true (only true for PSJF)
@@ -76,37 +84,55 @@ class DC extends Thread{
         // is currently running
         // *** runs one burst at a time
         else{
-            if(Scheduler.queue.size() != 0){
-                while(t.burst - t.burstCount
-                                <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount
-                                && t.burstCount < t.burst){
-                    t = cpu.burst(t, 1);
+            if(Scheduler.totalTasks > (Scheduler.tasksDone.get()+1)){
+                while(t.burstCount < t.burst){
+                        if (t.burst - t.burstCount
+                                <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount) {
+                            //System.out.println("\nnext in queue id: " + Scheduler.queue.get(0).id);
+                            t = cpu.burst(t, 1);
+                        }
+                        else {
+                            cpu.interrupt();
+                            Use.print(
+                                    disName,
+                                    "Kicked Task " + t.id
+                            );
+                            System.out.println("\nNext in queue id: " +
+                                    Scheduler.queue.get(0).name +
+                                    "\nMaxBurst: " + Scheduler.queue.get(0).burst +
+                                    "\nCurrentBurst: " + Scheduler.queue.get(0).burstCount +
+                                    "\nAfter: " + Scheduler.queue.get(1).name);
+                            Scheduler.qMtx.release();
+                            break;
+                        }
+                    Scheduler.qMtx.release();
+                    try {
+                        if (t.burstCount != t.burst) Scheduler.qMtx.acquire();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-
-                if(t.burstCount != t.burst){
-                    cpu.interrupt();
-                    Use.print(
-                            disName,
-                            "Kicked Task " + t.id
-                    );
-                }
-
             }else{
                 t = cpu.burst(t, t.burst - t.burstCount);
             }
-        }
+            /*
+             * if the task has not completed its
+             * max bursts, add the tasks to the
+             * end of the task ready queue
+             */
+            if(t.burstCount != t.burst){
+                try {
+                    Scheduler.qMtx.acquire();
+                    // t.arr = Scheduler.pc;
+                    Scheduler.queue.add(t);
+                    Scheduler.qMtx.release();
+                    Scheduler.sortQueue();
 
-        /*
-         * in the case of time quantum's, if the task has not completed its
-         * max bursts, add the tasks to the end of the task ready queue
-        */
-        if(t.burstCount != t.burst){
-            try {
-                Scheduler.qMtx.acquire();
-                // t.arr = Scheduler.pc;
-                Scheduler.queue.add(t);
-                Scheduler.qMtx.release();
-            } catch (Exception e) {}
+                    Scheduler.rMtx.release();
+                    System.out.println("Release 3");
+                    Scheduler.printQueue();
+                } catch (Exception e) {}
+            }
         }
     }
 
@@ -127,6 +153,7 @@ class DC extends Thread{
     }
 }
 
+// Code by Milan Haydel C00419477
 class CPU {
     String name;
     int id;

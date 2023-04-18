@@ -5,7 +5,19 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
+        /*
+        // Time code by Chris Walther C00408978
+        // Comment out time code during normal operation and uncomment out for use on Task 1 Question 1
+        long start = System.currentTimeMillis();
+        System.out.println("Timer start");
+        // Other code in between
+        long end = System.currentTimeMillis();
+        System.out.println("Timer end");
+        System.out.println("Elapsed Time in milliseconds: "+ (end-start));
+         */
+        boolean runtimeMeasure = false;
         int S = 0, C = 1, quanT = 0;
+
 
         try{
             for (int i = 0; i < args.length; i++){
@@ -79,8 +91,34 @@ public class Main {
             System.out.println(
                     "\n\tTime Quantum: " + quanT + "\n\tCores: " + C
             );
+            /*
+            // Time code by Chris Walther C00408978
+            // Comment out time code during normal operation and uncomment out for use on Task 1 Question 1
+            long start = System.currentTimeMillis();
+            System.out.println("Timer start");
             // call scheduler
             new Scheduler(S, quanT, C);
+            long end = System.currentTimeMillis();
+            System.out.println("Timer end");
+            System.out.println("Elapsed Time in milliseconds: "+ (end-start));
+            */
+
+            if (runtimeMeasure) {
+                // Time code by Chris Walther C00408978
+                // Comment out time code during normal operation and uncomment out for use on Task 1 Question 1
+                long start = System.currentTimeMillis();
+                System.out.println("Timer start");
+
+                // call scheduler
+                new Scheduler(S, quanT, C);
+
+                long end = System.currentTimeMillis();
+                System.out.println("Timer end");
+                System.out.println("Elapsed Time in milliseconds: " + (end - start));
+            } else {
+                // call scheduler
+                new Scheduler(S, quanT, C);
+            }
 
         } catch (NumberFormatException e) {
             System.out.println(

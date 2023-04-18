@@ -1,45 +1,45 @@
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
+// Code by Milan Haydel C00419477 and Chris Walther C00408978
 public class Scheduler {
+    // Code from Milan Haydel C00419477 ---
     String name = "Main Thread";
+    static Semaphore qMtx = new Semaphore(1),
+            cMtx = new Semaphore(1),
+            rMtx = new Semaphore(1),
+            finishedTsks = new Semaphore(0);;
     // qMtx used in createTasks for the queue
     // cMtx used in Task
-    static Semaphore qMtx = new Semaphore(1), cMtx = new Semaphore(1);
 
-    // ArrayList for ready queue to add task threads to
     static ArrayList<Task> queue = new ArrayList<>();
+    // ArrayList for ready queue to add task threads to
     static ArrayList<DC> dc = new ArrayList<>();
     static CPU[] cpu;
-
+    static int taskCount = 0, totalTasks = 0;
+    static AtomicInteger tasksDone = new AtomicInteger(0);
     /*
      taskCount keeps track of what task ID to make for
      instances where new tasks are made at different
      times. This will be used (and only for) PSJF
      */
-    /*
-     * core_dis is just a count of how many CPU cores/
-     * dispatchers we have in total to use in dispatcher
-     */
-    static int taskCount = 0;
+    // ---
 
-    // NPSJF and PSJF will use a class that sorts the queue
-    // of tasks
 
-    // class that prints the ready queue
+    // Code from Chris Walther C00408978 ---
+    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
+    // ---
 
-    // class to make dispatchers and CPUs
-
+    // Done by Milan Haydel C00419477
     public Scheduler(int S, int Q, int C){
         cpu = new CPU[C];
-        // there is an additional semaphore is CPU labelled 'cc'
-        // cpu mtx is used in dispatcher run and
-        // cc mtx is used in task run
         for(int i = 0; i < C; i++){
             cpu[i] = new CPU(i);
         }
-        // 'Q' Quantum is only used for RR (case 2)
+        // 'Q' Quantum variable is only used for RR (case 2)
         switch (S){
             case 1:
                 FCFS(C);
@@ -56,30 +56,37 @@ public class Scheduler {
         }
     }
 
-    // 4 separate classes for FCFS, RR, NPSJF, PSJF
+    // Code by Milan Haydel C00419477 and Chris Walther C00408978
     public void FCFS(int c){
-        createTasks(Use.randNum(1,25));
+        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
         printQueue();
-        // call DC using # of cores 'c'
-        // fork dispatcher
         forking(c, 0, false);
     }
 
+    // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void RR(int c, int q) {
-        createTasks(Use.randNum(1,25));
+        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
         printQueue();
-        // call DC using # of cores 'c' and quantum
-        // fork dispatcher
         forking(c, q, false);
     }
 
+    // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void NPSJF(int c) {
-        createTasks(Use.randNum(1,25));
+        // Chris Walther C00408978 ---
+        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
+        //printQueue(); //Temporary to test output
+        try {
+            sortQueue();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         printQueue();
-        // call DC using # of cores 'c'
-        // fork dispatcher
+        // ---
+        forking(c, 0, false);
     }
 
+    // Code by Milan Haydel C00419477
+    // Revised by Chris Walther C00408978
     private void PSJF(int c) {
         /*
          * The number of tasks for PSJF specifically (and only)
@@ -92,11 +99,27 @@ public class Scheduler {
          * The new set of tasks (1-15) is the other half of the
          * tasks range: [1-25].
          */
-        createTasks(Use.randNum(c, 10));
-        // sortQueue();
+        // Code by Chris Walther C00408978 ---
+        // Revised by Milan Haydel C00419477
+        if (randomTasks){
+            int m = Use.randNum(c,10);
+            totalTasks = totalTasks + m;
+            createTasks(m, false);
+        } else {createTasks(3, false); totalTasks = totalTasks + 3;}
+        int n;
+        if (randomTasks){
+            n = Use.randNum(1, 15);
+            totalTasks = totalTasks + n;
+        } else {n = 2; totalTasks = totalTasks + 2;}
+        try {
+            sortQueue();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         printQueue();
-        // call DC using # of cores 'c' and boolean p
-        // fork dispatcher
+        System.out.println("Total Threads: " + totalTasks);
+        // ---
+        forking(c, 0, true);
         /*
          * if boolean 'p' is true (only true for PSJF) it is because
          * task should preempt the currently running task if its
@@ -107,14 +130,23 @@ public class Scheduler {
          * The new set of tasks (1-15) added is the other half of the
          * tasks required range: [1-25].
          */
-        int n = Use.randNum(1, 15);
+
         while(n-- > 0){
-            createTasks(1);
-            // sortQueue();
-            printQueue();
+            createTasks(1, true);
+            // Code by Chris Walther C00408978 ---
+            /*try {
+                sortQueue();
+                printQueue();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }*/
+            // ---
         }
     }
 
+
+    // Code by Milan Haydel C00419477
+    // Revised by Chris Walther C00408978
 
     // class to create tasks for each implementation and adds
     // them to an ArrayList<Task> 'ready' queue and uses Semaphores
@@ -123,41 +155,75 @@ public class Scheduler {
     // you must have tasks arriving after threads
     // have already started running on the CPU
 
-    public void createTasks(int tNum){
-        System.out.println("Creating " + tNum + " task(s)..");
+    public void createTasks(int tNum, boolean n){
+        // System.out.print("\nCreating " + tNum + " task(s)..");
         for (int i = 0; i < tNum; i++){
             try {
                 Task t = new Task(taskCount);
+                // Code by Chris Walther C00408978 ---
+                if (!randomTasks) {
+                    if (taskCount == 0) {
+                        t.burst = 18;
+                    } else if (taskCount == 1) {
+                        t.burst = 7;
+                    } else if (taskCount == 2) {
+                        t.burst = 25;
+                    } else if (taskCount == 3) {
+                        t.burst = 42;
+                    } else {
+                        t.burst = 21;
+                    }
+                }
+                // ---
+
                 qMtx.acquire();
                 queue.add(t);
                 qMtx.release();
 
-                Use.print(name, "Creating thread " + taskCount);
+                if (n){
+                    sortQueue();
+                    printQueue();
+                    Use.print(name, "Creating thread " + taskCount);
+                }
+                else Use.print(name, "Creating thread " + taskCount);
+
                 taskCount++;
+                if (taskCount == totalTasks) finishedTsks.release();
             } catch (Exception e) {}
         }
     }
 
-    public void printQueue(){
-        System.out.print(
-                "\n\n--------------------Ready Queue---------------------"
-        );
-
+    // Code by Milan Haydel C00419477
+    public static void printQueue(){
         try {
-            qMtx.acquire();
-            for(Task t : queue){
-                System.out.printf(
-                        "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
-                        t.id, t.burst, t.burstCount
-                );
+            rMtx.acquire();
+            System.out.print(
+                    "\n\n--------------------Ready Queue---------------------"
+            );
+            try {
+                qMtx.acquire();
+                for (Task t : queue) {
+                    System.out.printf(
+                            "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
+                            t.id, t.burst, t.burstCount
+                    );
+                }
+                qMtx.release();
+            } catch (Exception e) {
+                System.out.println();
             }
-            qMtx.release();
-        } catch (Exception e) {}
-        System.out.println(
-                "\n----------------------------------------------------"
-        );
+            System.out.println(
+                    "\n----------------------------------------------------"
+            );
+            rMtx.release();
+            System.out.println("Release 4");
+        }
+        catch (Exception e) {
+            System.out.println();
+        }
     }
 
+    // Code by Milan Haydel C00419477
     public void forking(int c, int q, boolean p){
         for (int i = 0; i < c; i++){
             DC d = new DC(i, q, p);
@@ -165,5 +231,19 @@ public class Scheduler {
             dc.add(d);
             d.start();
         }
+    }
+
+    // Done by Chris Walther C00408978
+    // This method sorts the order of queue by descending order from the shortest burst time to longest.
+    public static void sortQueue() throws InterruptedException {
+        //while (queue.size() > 0) {
+        try {
+            qMtx.acquire();
+            Collections.sort(queue);
+            qMtx.release();
+        } catch (Exception e) {}
+        //}
+
+        //-- End of sortQueue
     }
 }

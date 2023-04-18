@@ -1,4 +1,4 @@
-public class Task extends Thread {
+public class Task extends Thread implements Comparable<Task> {
     String name;
     int id, burst, burstCount = 0;
     CPU cpu;
@@ -21,6 +21,31 @@ public class Task extends Thread {
 
     }
 
+    // Done by Chris Walther C00408978 ---
+    public int getBurst() {
+        return burst;
+    }
+
+    public int getBurstCount() {
+        return burstCount;
+    }
+    /*
+    public long getEndTime() {
+        long end = System.currentTimeMillis();
+        System.out.println("Timer end");
+        return end;
+    }
+     */
+
+    @Override
+    public int compareTo(Task other) {
+        return this.burst - other.getBurst() - other.getBurstCount();
+    }  //-1 if other > this, 0 if other = this, 1 if other < this
+
+    // ---
+
+    // Done by Patrick Leleux C#
+    // Revised by Milan Haydel C00419477
     public void run(){
         // use a try catch statement if you want with the while loop inside.
 
@@ -36,12 +61,17 @@ public class Task extends Thread {
             Scheduler.cMtx.acquire();
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
             Scheduler.cMtx.release();
-
         }
-
+        // Code by Milan Haydel C00419477 ---
+        if (this.burstCount == this.burst){
+            Scheduler.tasksDone.getAndIncrement();
+        }
         } catch (Exception e) {}
+        // ---
+        //getEndTime();
     }
 
+    // Done by Milan Haydel C00419477
     public void setCPU(CPU cpu, int bg){
         this.cpu = cpu;
 
@@ -50,7 +80,7 @@ public class Task extends Thread {
         Use.print(
                 name,
                 // Max Burst
-                " MB=" + burst +
+                "MB=" + burst +
                         // Current Burst
                         ", CB=" + burstCount +
                         // Burst Target

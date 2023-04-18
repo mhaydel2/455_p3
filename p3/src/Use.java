@@ -1,5 +1,6 @@
 import java.util.concurrent.ThreadLocalRandom;
 
+// Done by Milan Haydel C00419477
 public class Use {
     public static int randNum(int min, int max){
         return ThreadLocalRandom.current().nextInt(min, max + 1);
