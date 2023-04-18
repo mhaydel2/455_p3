@@ -109,7 +109,7 @@ public class Scheduler {
             int m = Use.randNum(c,10);
             totalTasks = m;
             createTasks(m, false);
-        } else {createTasks(3, false); totalTasks = totalTasks + 3;}
+        } else {createTasks(3, false); totalTasks = 3;}
         int n;
         if (randomTasks){
             n = Use.randNum(1, 15);
@@ -185,14 +185,14 @@ public class Scheduler {
                 qMtx.release();
 
                 if (n){
-                    Use.print(name, "Creating thread " + taskCount);
                     sortQueue();
+                    Use.print(name, "Creating thread " + taskCount);
                     printQueue();
                 }
                 else Use.print(name, "Creating thread " + taskCount);
 
                 taskCount++;
-                System.out.print("\nTasks Made: " + taskCount + " Total Tasks to made:  " + totalTasks);
+                System.out.print("\nTasks Made: " + taskCount + " Total Tasks to Make:  " + totalTasks);
                 /*if (taskCount == totalTasks && n) {
                     System.out.println("release");
                     finishedTsks.release();

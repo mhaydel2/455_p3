@@ -51,7 +51,8 @@ class DC extends Thread {
                         Scheduler.qMtx.acquire();
                         //System.out.println("Task t = Scheduler.queue.remove(0);");
                         Task t = Scheduler.queue.remove(0);
-                        if (!p) Scheduler.qMtx.release();
+                        if (!p) {Scheduler.qMtx.release();
+                        Scheduler.rMtx.release();}
                         else if (p && t.burstCount != 0){Scheduler.qMtx.release();
                             Scheduler.rMtx.release();
                             //System.out.println("\nScheduler.qMtx.release()\nScheduler.rMtx.release()");
@@ -68,7 +69,7 @@ class DC extends Thread {
                     }
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
                 }
-                Scheduler.printQueue();
+                // Scheduler.printQueue();
                 i++;
 
             }
