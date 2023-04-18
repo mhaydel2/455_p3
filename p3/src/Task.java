@@ -45,7 +45,7 @@ public class Task extends Thread implements Comparable<Task> {
         return this.burst - other.getBurst() - other.getBurstCount();
     }  //-1 if other > this, 0 if other = this, 1 if other < this
 
-    // ---
+    // Done by Patrick Leleux C00449233---
 
     public void run(){
         // use a try catch statement if you want with the while loop inside.
