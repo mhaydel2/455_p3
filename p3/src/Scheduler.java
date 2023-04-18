@@ -108,12 +108,14 @@ public class Scheduler {
         if (randomTasks){
             int m = Use.randNum(c,10);
             totalTasks = m;
+            System.out.println("\nm = " + m + " " + totalTasks);
             createTasks(m, false);
         } else {createTasks(3, false); totalTasks = totalTasks + 3;}
         int n;
         if (randomTasks){
             n = Use.randNum(1, 15);
             totalTasks = totalTasks + n;
+            System.out.println("\nn = " + n + " " + totalTasks);
         } else {n = 2; totalTasks = totalTasks + 2;}
         try {
             sortQueue();
@@ -185,14 +187,18 @@ public class Scheduler {
                 qMtx.release();
 
                 if (n){
+                    Use.print(name, "Creating thread " + taskCount);
                     sortQueue();
                     printQueue();
-                    Use.print(name, "Creating thread " + taskCount);
                 }
                 else Use.print(name, "Creating thread " + taskCount);
 
                 taskCount++;
-                if (taskCount == totalTasks && n) finishedTsks.release();
+                System.out.println("\nTasks Makde: " + taskCount + " Total Tasks to made:  " + totalTasks);
+                if (taskCount == totalTasks && n) {
+                    System.out.println("release");
+                    finishedTsks.release();
+                }
             } catch (Exception e) {}
         }
     }
@@ -239,13 +245,25 @@ public class Scheduler {
     // Done by Chris Walther C00408978
     // This method sorts the order of queue by descending order from the shortest burst time to longest.
     public static void sortQueue() throws InterruptedException {
-        //while (queue.size() > 0) {
         try {
             qMtx.acquire();
-            Collections.sort(queue);
+
+            for(int i = 0; i < queue.size() - 1; i++){
+                for(int j = i + 1; j < queue.size(); j++){
+                    if(
+                            queue.get(i).burst - queue.get(i).burstCount
+                                    > queue.get(j).burst - queue.get(j).burstCount
+                    ){
+                        Task t = queue.get(i);
+                        queue.set(i, queue.get(j));
+                        queue.set(j, t);
+                    }
+                }
+            }
+
             qMtx.release();
-        } catch (Exception e) {}
-        //}
+        } catch (Exception e) {
+        }
 
         //-- End of sortQueue
     }
