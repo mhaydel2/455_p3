@@ -24,26 +24,31 @@ class DC extends Thread{
     public void run(){
         try {
             Scheduler.rMtx.acquire();
+            System.out.println("rMtx Acquire 2");
             Use.print(
                     disName,
                     "Using CPU " + id
             );
 
             Scheduler.rMtx.release();
+            System.out.println("rMtx Release 2");
 
             int i = 0;
 
             while(Scheduler.tasksDone.get() != Scheduler.totalTasks){
                 if (Scheduler.queue.size() == 1) Scheduler.finishedTsks.acquire();
                 Scheduler.rMtx.acquire();
+                System.out.println("rMtx Acquire 3");
                 // if it is empty, it needs to create the rest of the tasks
                 if(Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()){
                     CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
 
                     try {
                         Scheduler.qMtx.acquire();
+                        System.out.println("qMtx Acquire 4");
                         Task t = Scheduler.queue.remove(0);
                         if (!p) Scheduler.qMtx.release();
+                        System.out.println("qMtx Release 4");
                         // hold the qmtx and release it after each burst
 
                         System.out.println();
@@ -56,6 +61,7 @@ class DC extends Thread{
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
                 }
                 Scheduler.rMtx.release();
+                System.out.println("rMtx Release 3");
                 i++;
 
             }
@@ -101,11 +107,14 @@ class DC extends Thread{
                                     "\nCurrentBurst: " + Scheduler.queue.get(0).burstCount +
                                     "\nAfter: " + Scheduler.queue.get(1).name);
                             Scheduler.qMtx.release();
+                            System.out.println("qMtx Release 5");
                             break;
                         }
                     Scheduler.qMtx.release();
+                    System.out.println("qMtx Release 6");
                     try {
                         if (t.burstCount != t.burst) Scheduler.qMtx.acquire();
+                        System.out.println("qMtx Acquire 5");
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -121,9 +130,11 @@ class DC extends Thread{
             if(t.burstCount != t.burst){
                 try {
                     Scheduler.qMtx.acquire();
+                    System.out.println("qMtx Acquire 7");
                     // t.arr = Scheduler.pc;
                     Scheduler.queue.add(t);
                     Scheduler.qMtx.release();
+                    System.out.println("qMtx Acquire 7");
                     Scheduler.sortQueue();
 
                     Scheduler.rMtx.release();
@@ -168,6 +179,7 @@ class CPU {
             while(bursts-- > 0 && gtg){
                 // cc is acquired in task run()
                 this.cc.release(1);
+                System.out.println("cc Release");
                 t.start();
                 t.join();
                 t = new Task(t);

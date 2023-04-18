@@ -177,8 +177,10 @@ public class Scheduler {
                 // ---
 
                 qMtx.acquire();
+                System.out.println("qMtx Acquire 1");
                 queue.add(t);
                 qMtx.release();
+                System.out.println("qMtx Release 1");
 
                 if (n){
                     sortQueue();
@@ -197,11 +199,13 @@ public class Scheduler {
     public static void printQueue(){
         try {
             rMtx.acquire();
+            System.out.println("rMtx Acquire 1");
             System.out.print(
                     "\n\n--------------------Ready Queue---------------------"
             );
             try {
                 qMtx.acquire();
+                System.out.println("qMtx Acquire 2");
                 for (Task t : queue) {
                     System.out.printf(
                             "\nID:%2s, Max Burst:%2d, Current Burst:%2d",
@@ -209,6 +213,7 @@ public class Scheduler {
                     );
                 }
                 qMtx.release();
+                System.out.println("qMtx Release 2");
             } catch (Exception e) {
                 System.out.println();
             }
@@ -216,6 +221,7 @@ public class Scheduler {
                     "\n----------------------------------------------------"
             );
             rMtx.release();
+            System.out.println("rMtx Release 1");
         }
         catch (Exception e) {
             System.out.println();
@@ -238,8 +244,11 @@ public class Scheduler {
         //while (queue.size() > 0) {
         try {
             qMtx.acquire();
+            System.out.println("qMtx Acquire 3");
+            System.out.println("SchAcquire 3");
             Collections.sort(queue);
             qMtx.release();
+            System.out.println("qMtx Release 3");
         } catch (Exception e) {}
         //}
 

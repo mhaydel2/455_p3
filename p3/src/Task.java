@@ -56,11 +56,14 @@ public class Task extends Thread implements Comparable<Task> {
         try{
 
         while (this.burstCount < this.burst && this.cpu.cc.tryAcquire()){
+            System.out.println("cc Acquire");
 
             // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
             Scheduler.cMtx.acquire();
+            System.out.println("cMtx Acquire 1");
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
             Scheduler.cMtx.release();
+            System.out.println("cMtx Release 1");
         }
         // Code by Milan Haydel C00419477 ---
         if (this.burstCount == this.burst){
