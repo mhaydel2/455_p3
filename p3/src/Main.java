@@ -15,7 +15,7 @@ public class Main {
         System.out.println("Timer end");
         System.out.println("Elapsed Time in milliseconds: "+ (end-start));
          */
-        boolean runtimeMeasure = false;
+        boolean runtimeMeasure = false, usedC = false, usedS = false;
         int S = 0, C = 1, quanT = 0;
 
 
@@ -27,28 +27,52 @@ public class Main {
                             S = Integer.parseInt(args[++i]);
                         } catch (NumberFormatException e) {
                             throw new IllegalArgumentException(
-                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                                    "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                         } catch (ArrayIndexOutOfBoundsException e) {
                             throw new IllegalArgumentException(
-                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                                    "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                         }
                         if(S < 1 || S > 4){
                             throw new NumberFormatException(
-                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                                    "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
+                        }
+                        else if (S != 2 && args.length > 2){
+                            for (String s : args) {
+                                if ("-C".equals(s)) {
+                                    usedC = true;
+                                }
+                            }
+                            if (usedC && args.length > 4){
+                                throw new IllegalArgumentException(
+                                        "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
+                            } else if (!usedC) throw new IllegalArgumentException(
+                                    "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                         }
                         else if (S == 2){
                             try {
                                 quanT = Integer.parseInt(args[++i]);
                             } catch (NumberFormatException e) {
                                 throw new IllegalArgumentException(
-                                        "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                                        "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                             } catch (ArrayIndexOutOfBoundsException e){
                                 throw new IllegalArgumentException(
-                                        "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                                        "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                             }
                             if(quanT < 2 || quanT > 10){
                                 throw new NumberFormatException(
-                                        "ERROR: INVALID ALGORITHM NUMBER; OUT OF RANGE");
+                                        "\nERROR: INVALID ALGORITHM NUMBER; OUT OF RANGE");
+                            }
+                            else if (args.length > 3){
+                                for (String s : args) {
+                                    if ("-C".equals(s)) {
+                                        usedC = true;
+                                    }
+                                }
+                                if (usedC && args.length > 5){
+                                    throw new IllegalArgumentException(
+                                            "\nERROR: INVALID ALGORITHM NUMBERS");
+                                } else if (!usedC) throw new IllegalArgumentException(
+                                        "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                             }
                         }
                         break;
@@ -59,12 +83,23 @@ public class Main {
                             C = Integer.parseInt(args[++i]);
                         } catch (NumberFormatException e) {
                             throw new IllegalArgumentException(
-                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                                    "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                         }
                         catch (ArrayIndexOutOfBoundsException e){
                             throw new IllegalArgumentException(
-                                    "ERROR: INVALID/MISSING ALGORITHM NUMBER");
+                                    "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                         }
+                        if(C < 1 || C > 4){
+                            throw new NumberFormatException(
+                                    "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
+                        }
+                        for (String s : args) {
+                            if ("-S".equals(s)) {
+                                usedS = true;
+                            }
+                        }
+                        if (!usedS) throw new IllegalArgumentException(
+                                "\nERROR: INVALID/MISSING ALGORITHM NUMBER");
                 }
             }
             if( S == 4 && C > 1){

@@ -161,66 +161,6 @@ class DC extends Thread {
                 }
             }
         }
-        /*
-        ***** non working code ******
-        else {
-            System.out.println("\nagain");
-            // if there's at least one more in the queue
-            if (Scheduler.queue.size() != 0) {
-                System.out.println("again1\n" +
-                        Scheduler.totalTasks +
-                        "\n" + (Scheduler.tasksDone.get() + 1));
-                while (t.burstCount < t.burst) {
-                    if (t.burst - t.burstCount
-                            <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount) {
-                        //System.out.println("\nnext in queue id: " + Scheduler.queue.get(0).id);
-                        t = cpu.burst(t, 1);
-                        if (t.burstCount == 0){Scheduler.qMtx.release();} // ***
-
-                    } else {
-                        if (t.burstCount == 0){Scheduler.qMtx.release();}
-                        cpu.interrupt();
-                        Use.print(
-                                disName,
-                                "Kicked Task " + t.id
-                        );
-                        System.out.println("\nNext in queue id: " +
-                                Scheduler.queue.get(0).name +
-                                "\nMaxBurst: " + Scheduler.queue.get(0).burst +
-                                "\nCurrentBurst: " + Scheduler.queue.get(0).burstCount +
-                                "\nAfter: " + Scheduler.queue.get(1).name);
-                        /*
-                         * if the task has not completed its
-                         * max bursts, add the tasks to the
-                         * end of the task ready queue
-
-                        if (t.burstCount != t.burst) {
-                            try {
-                                System.out.println("\nSorting...");
-                                // t.arr = Scheduler.pc;
-                                Scheduler.qMtx.acquire();
-                                Scheduler.queue.add(t);
-                                Scheduler.qMtx.release();
-                                Scheduler.sortQueue();
-                            } catch (Exception e) {}
-                        }
-                        else Scheduler.qMtx.release();
-                        break;
-                    }
-                    Scheduler.qMtx.release();
-                    try {
-                        if (t.burstCount != t.burst) Scheduler.qMtx.acquire();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            } else {
-                System.out.println("again2");
-                t = cpu.burst(t, t.burst - t.burstCount);
-                Scheduler.qMtx.release();
-            }
-        }*/
-
     }
 
     public int calculateBurst(Task t, int quan) {
