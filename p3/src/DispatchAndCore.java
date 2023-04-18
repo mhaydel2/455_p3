@@ -34,7 +34,6 @@ class DC extends Thread{
             int i = 0;
 
             while(Scheduler.tasksDone.get() != Scheduler.totalTasks){
-                System.out.println("\n\n***queue.size() = " + Scheduler.queue.size() + "\n\n");
                 if (Scheduler.queue.size() == 1) Scheduler.finishedTsks.acquire();
                 Scheduler.rMtx.acquire();
                 // if it is empty, it needs to create the rest of the tasks
@@ -62,10 +61,8 @@ class DC extends Thread{
             }
         } catch (Exception e) {
             System.out.println(
-                    "\n\n****************************************************" +
                             "\nSomething went wrong: " +
-                            "\n" + e +
-                            "\n****************************************************"
+                            "\n" + e
             );
         }
     }
@@ -114,7 +111,6 @@ class DC extends Thread{
                     }
                 }
             }else{
-                System.out.println("\n\n***taskCount == totalTasks***\n\n");
                 t = cpu.burst(t, t.burst - t.burstCount);
             }
             /*
