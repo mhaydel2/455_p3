@@ -130,7 +130,7 @@ public class Scheduler {
          * The new set of tasks (1-15) added is the other half of the
          * tasks required range: [1-25].
          */
-
+/*
         while(n-- > 0){
             createTasks(1, true);
             // Code by Chris Walther C00408978 ---
@@ -141,7 +141,7 @@ public class Scheduler {
                 throw new RuntimeException(e);
             }*/
             // ---
-        }
+        //} //-------------------------------------------------------------
     }
 
 
@@ -245,7 +245,6 @@ public class Scheduler {
         try {
             qMtx.acquire();
             System.out.println("qMtx Acquire 3");
-            System.out.println("SchAcquire 3");
             Collections.sort(queue);
             qMtx.release();
             System.out.println("qMtx Release 3");
