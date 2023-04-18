@@ -57,11 +57,20 @@ public class Task extends Thread implements Comparable<Task> {
 
             // use the cMtx Semaphore from Scheduler => Scheduler.cMtx.acquire.
             Scheduler.cMtx.acquire();
+            //System.out.println("\tpassed3");
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
             Scheduler.cMtx.release();
+
+            // its printing this line when printing the ready queue
+            Scheduler.rMtx.release();
+            Scheduler.qMtx.release();
         }
         if (this.burstCount == this.burst){
             Scheduler.tasksDone.getAndIncrement();
+            if (Scheduler.tasksDone.get() == 1) {
+                Scheduler.startNewTasks.release();
+                //System.out.println("\nreleased");
+            }
         }
         } catch (Exception e) {}
         //getEndTime();

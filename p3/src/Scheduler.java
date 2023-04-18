@@ -11,7 +11,8 @@ public class Scheduler {
     static Semaphore qMtx = new Semaphore(1),
             cMtx = new Semaphore(1),
             rMtx = new Semaphore(1),
-            finishedTsks = new Semaphore(0);;
+            startNewTasks = new Semaphore(0),
+            finishedTsks = new Semaphore(0);
     // qMtx used in createTasks for the queue
     // cMtx used in Task
 
@@ -131,17 +132,22 @@ public class Scheduler {
          * tasks required range: [1-25].
          */
 
-        while(n-- > 0){
-            createTasks(1, true);
-            // Code by Chris Walther C00408978 ---
+        try {
+            startNewTasks.acquire();
+            System.out.println("\nacquired");
+            while (n-- > 0) {
+                System.out.println("\nnew");
+                createTasks(1, true);
+                // Code by Chris Walther C00408978 ---
             /*try {
                 sortQueue();
                 printQueue();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }*/
-            // ---
-        }
+                // ---
+            }
+        } catch (Exception e) {}
     }
 
 
@@ -178,14 +184,16 @@ public class Scheduler {
 
                 qMtx.acquire();
                 queue.add(t);
-                qMtx.release();
-
                 if (n){
+                    Use.print(name, "Creating thread " + taskCount +
+                            "; Max Burst: " + t.burst);
+                    // System.out.println("\nplease");
                     sortQueue();
-                    printQueue();
-                    Use.print(name, "Creating thread " + taskCount);
+                    // System.out.println("\nplease1");
                 }
                 else Use.print(name, "Creating thread " + taskCount);
+                qMtx.release();
+                if (n)printQueue();
 
                 taskCount++;
                 if (taskCount == totalTasks) finishedTsks.release();
@@ -196,7 +204,6 @@ public class Scheduler {
     // Code by Milan Haydel C00419477
     public static void printQueue(){
         try {
-            rMtx.acquire();
             System.out.print(
                     "\n\n--------------------Ready Queue---------------------"
             );
@@ -215,7 +222,6 @@ public class Scheduler {
             System.out.println(
                     "\n----------------------------------------------------"
             );
-            rMtx.release();
         }
         catch (Exception e) {
             System.out.println();
@@ -237,9 +243,9 @@ public class Scheduler {
     public static void sortQueue() throws InterruptedException {
         //while (queue.size() > 0) {
         try {
-            qMtx.acquire();
+            rMtx.acquire();
             Collections.sort(queue);
-            qMtx.release();
+            rMtx.release();
         } catch (Exception e) {}
         //}
 
