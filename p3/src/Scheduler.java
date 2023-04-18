@@ -216,7 +216,6 @@ public class Scheduler {
                     "\n----------------------------------------------------"
             );
             rMtx.release();
-            System.out.println("Release 4");
         }
         catch (Exception e) {
             System.out.println();
