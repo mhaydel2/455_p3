@@ -28,14 +28,11 @@ class DC extends Thread{
                     disName,
                     "Using CPU " + id
             );
-
             Scheduler.rMtx.release();
-
             int i = 0;
 
             while(Scheduler.tasksDone.get() != Scheduler.totalTasks){
-                System.out.println("\n\n***queue.size() = " + Scheduler.queue.size() + "\n\n");
-                if (Scheduler.queue.size() == 1) Scheduler.finishedTsks.acquire();
+                if (Scheduler.queue.size() == 1 && p) Scheduler.finishedTsks.acquire();
                 Scheduler.rMtx.acquire();
                 // if it is empty, it needs to create the rest of the tasks
                 if(Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()){
@@ -62,10 +59,8 @@ class DC extends Thread{
             }
         } catch (Exception e) {
             System.out.println(
-                    "\n\n****************************************************" +
                             "\nSomething went wrong: " +
-                            "\n" + e +
-                            "\n****************************************************"
+                            "\n" + e
             );
         }
     }
@@ -76,8 +71,15 @@ class DC extends Thread{
 
         if(!p){
             t = cpu.burst(t, bursts);
-
-
+            if(t.burstCount != t.burst) {
+                try {
+                    Scheduler.qMtx.acquire();
+                    // t.arr = Scheduler.pc;
+                    Scheduler.queue.add(t);
+                    Scheduler.qMtx.release();
+                } catch (Exception e) {
+                }
+            }
         }
         // this is what p determines if true (only true for PSJF)
         // AKA task should preempt the currently running task if its
@@ -114,7 +116,6 @@ class DC extends Thread{
                     }
                 }
             }else{
-                System.out.println("\n\n***taskCount == totalTasks***\n\n");
                 t = cpu.burst(t, t.burst - t.burstCount);
             }
             /*

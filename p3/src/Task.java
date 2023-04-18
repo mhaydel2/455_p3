@@ -1,3 +1,6 @@
+// Code by Milan Haydel C00419477
+// Revised by Patrick Leleux
+
 public class Task extends Thread implements Comparable<Task> {
     String name;
     int id, burst, burstCount = 0;

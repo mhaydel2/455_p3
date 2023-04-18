@@ -39,6 +39,10 @@ public class Scheduler {
         for(int i = 0; i < C; i++){
             cpu[i] = new CPU(i);
         }
+
+        if (randomTasks){
+            totalTasks = Use.randNum(1,25);
+        } else {totalTasks = 5;}
         // 'Q' Quantum variable is only used for RR (case 2)
         switch (S){
             case 1:
@@ -58,14 +62,14 @@ public class Scheduler {
 
     // Code by Milan Haydel C00419477 and Chris Walther C00408978
     public void FCFS(int c){
-        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
+        if (randomTasks){createTasks(totalTasks, false);} else {createTasks(5, false);}
         printQueue();
         forking(c, 0, false);
     }
 
     // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void RR(int c, int q) {
-        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
+        if (randomTasks){createTasks(totalTasks, false);} else {createTasks(5, false);}
         printQueue();
         forking(c, q, false);
     }
@@ -73,7 +77,7 @@ public class Scheduler {
     // Code by Milan Haydel C00419477 and Chris Walther C00408978
     private void NPSJF(int c) {
         // Chris Walther C00408978 ---
-        if (randomTasks){createTasks(Use.randNum(1,25), false);} else {createTasks(5, false);}
+        if (randomTasks){createTasks(totalTasks, false);} else {createTasks(5, false);}
         //printQueue(); //Temporary to test output
         try {
             sortQueue();
@@ -103,7 +107,7 @@ public class Scheduler {
         // Revised by Milan Haydel C00419477
         if (randomTasks){
             int m = Use.randNum(c,10);
-            totalTasks = totalTasks + m;
+            totalTasks = m;
             createTasks(m, false);
         } else {createTasks(3, false); totalTasks = totalTasks + 3;}
         int n;
@@ -188,7 +192,7 @@ public class Scheduler {
                 else Use.print(name, "Creating thread " + taskCount);
 
                 taskCount++;
-                if (taskCount == totalTasks) finishedTsks.release();
+                if (taskCount == totalTasks && n) finishedTsks.release();
             } catch (Exception e) {}
         }
     }
