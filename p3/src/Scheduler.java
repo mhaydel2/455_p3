@@ -11,7 +11,7 @@ public class Scheduler {
     static Semaphore qMtx = new Semaphore(1),
             cMtx = new Semaphore(1),
             rMtx = new Semaphore(1),
-            finishedTsks = new Semaphore(0);;
+            createTsks = new Semaphore(0);;
     // qMtx used in createTasks for the queue
     // cMtx used in Task
 
@@ -19,7 +19,7 @@ public class Scheduler {
     // ArrayList for ready queue to add task threads to
     static ArrayList<DC> dc = new ArrayList<>();
     static CPU[] cpu;
-    static int taskCount = 0, totalTasks = 0;
+    static int S, taskCount = 0, totalTasks = 0;
     /*
      taskCount keeps track of what task ID to make for
      instances where new tasks are made at different
@@ -30,11 +30,12 @@ public class Scheduler {
 
 
     // Code from Chris Walther C00408978 ---
-    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
+    boolean randomTasks = false; // Set to false for handling Task 1 Question 1 and set to true standardly
     // ---
 
     // Done by Milan Haydel C00419477
     public Scheduler(int S, int Q, int C){
+        this.S = S;
         cpu = new CPU[C];
         for(int i = 0; i < C; i++){
             cpu[i] = new CPU(i);
@@ -42,7 +43,10 @@ public class Scheduler {
 
         if (randomTasks){
             totalTasks = Use.randNum(1,25);
-        } else {totalTasks = 5;}
+        } else {
+            totalTasks = 5;
+            Q = 5;
+        }
         // 'Q' Quantum variable is only used for RR (case 2)
         switch (S){
             case 1:
@@ -121,7 +125,7 @@ public class Scheduler {
             throw new RuntimeException(e);
         }
         printQueue();
-        System.out.println("Total Threads: " + totalTasks);
+        System.out.println("Total Threads that need to be created: " + totalTasks);
         // ---
         forking(c, 0, true);
         /*
@@ -136,7 +140,12 @@ public class Scheduler {
          */
 
         while(n-- > 0){
-            createTasks(1, true);
+            try {
+                createTsks.acquire();
+                createTasks(1, true);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             // Code by Chris Walther C00408978 ---
             /*try {
                 sortQueue();
@@ -186,13 +195,13 @@ public class Scheduler {
 
                 if (n){
                     sortQueue();
-                    Use.print(name, "Creating thread " + taskCount);
+                    // Use.print(name, "Creating thread " + taskCount);
                     printQueue();
                 }
                 else Use.print(name, "Creating thread " + taskCount);
 
                 taskCount++;
-                System.out.print("\nTasks Made: " + taskCount + " Total Tasks to Make:  " + totalTasks);
+                // System.out.print("\nTasks Made: " + taskCount + " Total Tasks to Make:  " + totalTasks);
                 /*if (taskCount == totalTasks && n) {
                     System.out.println("release");
                     finishedTsks.release();

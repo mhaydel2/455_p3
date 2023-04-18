@@ -10,4 +10,17 @@ public class Use {
                 "\n%-15s | " + msg, name
         );
     }
+    public static String getAlg(int S){
+        switch (S){
+            case 1:
+                return "Running FCFS Algorithm";
+            case 2:
+                return "Running RR Algorithm";
+            case 3:
+                return "Running Non Preemptive - Shortest Job First Algorithm";
+            case 4:
+                return "Running Preemptive - Shortest Job First Algorithm";
+        }
+        return "Invalid Algorithm Passed";
+    }
 }

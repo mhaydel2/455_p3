@@ -29,6 +29,10 @@ class DC extends Thread {
                     disName,
                     "Using CPU " + id
             );
+            Use.print(
+                    disName,
+                    Use.getAlg(Scheduler.S)
+            );
             Scheduler.rMtx.release();
             int i = 0;
 
@@ -107,12 +111,14 @@ class DC extends Thread {
                 if (Scheduler.queue.size() != 0){
                     if (t.burst - t.burstCount
                             <= Scheduler.queue.get(0).burst - Scheduler.queue.get(0).burstCount) {
-                        t = cpu.burst(t, 1);
                         // releases after the first burst
-                        if (t.burstCount == 1){Scheduler.qMtx.release();
+                        if (t.burstCount == 0){
                             Scheduler.rMtx.release();
+                            Scheduler.qMtx.release();
+                            t = cpu.burst(t, 1);
                             // System.out.println("\nScheduler.qMtx.release()\nScheduler.rMtx.release()");
-                            }
+                        }
+                        else t = cpu.burst(t, 1);
                     }
                     else {
                         if (t.burstCount == 0){Scheduler.qMtx.release();
@@ -143,11 +149,15 @@ class DC extends Thread {
                     }
                 }
                 else {
-                    t = cpu.burst(t, 1);
-                    if (t.burstCount == 1){Scheduler.qMtx.release();
+                    if (t.burstCount == 0){
+                        Scheduler.qMtx.release();
                         Scheduler.rMtx.release();
                         //System.out.println("\nScheduler.qMtx.release()\nScheduler.rMtx.release()");
                     }
+                    t = cpu.burst(t, 1);
+                }
+                if (Scheduler.createTsks.availablePermits() == 0){
+                    Scheduler.createTsks.release();
                 }
             }
         }
