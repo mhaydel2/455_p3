@@ -44,6 +44,8 @@ public class Task extends Thread implements Comparable<Task> {
 
     // ---
 
+    // Done by Patrick Leleux C#
+    // Revised by Milan Haydel C00419477
     public void run(){
         // use a try catch statement if you want with the while loop inside.
 
@@ -60,13 +62,16 @@ public class Task extends Thread implements Comparable<Task> {
             Use.print(name, "Using "+this.cpu.name+"; On burst "+ ++this.burstCount);
             Scheduler.cMtx.release();
         }
+        // Code by Milan Haydel C00419477 ---
         if (this.burstCount == this.burst){
             Scheduler.tasksDone.getAndIncrement();
         }
         } catch (Exception e) {}
+        // ---
         //getEndTime();
     }
 
+    // Done by Milan Haydel C00419477
     public void setCPU(CPU cpu, int bg){
         this.cpu = cpu;
 
