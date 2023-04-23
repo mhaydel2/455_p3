@@ -13,25 +13,28 @@ class DC extends Thread {
 
     String disName, cpuName;
     static int id, q;
+    private final int cpuId;
     boolean p;
     static Semaphore none = new Semaphore(1);
     static AtomicInteger preempTask = new AtomicInteger(0);
 
     public DC(int C, int Q, boolean P) {
-        super(String.valueOf(C));
+        super(String.valueOf(id));
         this.id = C;
         this.disName = "Dispatcher " + id;
         this.cpuName = "CPU " + id;
+        cpuId = C;
         this.q = Q;
         this.p = P;
     }
+    int getID(){return cpuId;}
 
     public void run() {
         try {
             Scheduler.rMtx.acquire();
             Use.print(
-                    disName,
-                    ("Using " + cpuName)
+                    this.disName,
+                    ("Using " + this.cpuName)
             );
             Use.print(
                     disName,
@@ -45,9 +48,11 @@ class DC extends Thread {
                 //System.out.println("WAITING " + cpuName);
                 Scheduler.rMtx.acquire();
                 //System.out.println("DONE WAITING " + cpuName);
-                if (Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()) {
-                    CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
+                //System.out.println(cpuName + " id " + this.id);
+                if (Scheduler.cpu[getID()].mtx.tryAcquire()) {
+                    CPU cpu = Scheduler.cpu[getID()];
                     //System.out.println("NEW " + cpuName + " " + Scheduler.qMtx.availablePermits());
+                    //System.out.println("NEW " + cpuName + " id " + this.id + " getID " + getID());
 
                     try {
                         Scheduler.qMtx.acquire();
@@ -71,9 +76,8 @@ class DC extends Thread {
                         );
                         load(cpu, t);
                         //System.out.println(cpuName + " done");
-                    } catch (IndexOutOfBoundsException e) {
-                    }
-                    Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
+                    } catch (IndexOutOfBoundsException e) {}
+                    Scheduler.cpu[getID()].mtx.release();
                 }
                 else {
                     Scheduler.rMtx.release();
@@ -178,9 +182,7 @@ class DC extends Thread {
         }
         System.out.println("\nNext in queue id: " +
                 Scheduler.queue.get(0).name +
-                "\nMaxBurst: " + Scheduler.queue.get(0).burst +
-                "\nCurrentBurst: " + Scheduler.queue.get(0).burstCount +
-                "\nAfter: " + Scheduler.queue.get(1).name);
+                "\nMaxBurst: " + Scheduler.queue.get(0).burst);
         Scheduler.rMtx.release();
     }
 
