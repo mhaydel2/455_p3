@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// Code by Milan Haydel C00419477
+// Begin Code changes by Milan Haydel C00419477
 class DC extends Thread {
     /*
      * C : Cores
@@ -225,3 +225,4 @@ class CPU {
         this.gtg = false;
     }
 }
+// End Code changes by Milan Haydel C00419477

@@ -1,6 +1,7 @@
 import java.util.concurrent.ThreadLocalRandom;
 
 // Code by Milan Haydel C00419477
+// Begin Code changes by Milan Haydel C00419477
 public class Use {
     public static int randNum(int min, int max){
         return ThreadLocalRandom.current().nextInt(min, max + 1);
@@ -24,3 +25,4 @@ public class Use {
         return "Invalid Algorithm Passed";
     }
 }
+// End Code changes by Milan Haydel C00419477

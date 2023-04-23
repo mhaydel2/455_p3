@@ -140,6 +140,7 @@ public class Scheduler {
          * tasks required range: [1-25].
          */
 
+        // Code by Milan Haydel c00419477 ---
         while(n-- > 0){
             try {
                 createTsks.acquire();
@@ -147,19 +148,12 @@ public class Scheduler {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            // Code by Chris Walther C00408978 ---
-            /*try {
-                sortQueue();
-                printQueue();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }*/
-            // ---
         }
+        // ---
     }
 
 
-    // Code by Milan Haydel C00419477
+    // Begin Code changes by Milan Haydel C00419477
     // Revised by Chris Walther C00408978
 
     // class to create tasks for each implementation and adds
@@ -213,8 +207,9 @@ public class Scheduler {
             } catch (Exception e) {}
         }
     }
+    // End Code changes by Milan Haydel C00419477
 
-    // Code by Milan Haydel C00419477
+    // Begin Code changes by Milan Haydel C00419477
     public static void printQueue(){
         try {
             rMtx.acquire();
@@ -242,8 +237,9 @@ public class Scheduler {
             System.out.println();
         }
     }
+    // End Code changes by Milan Haydel C00419477
 
-    // Code by Milan Haydel C00419477
+    // Begin Code changes by Milan Haydel C00419477
     public void forking(int c, int q, boolean p){
         for (int i = 0; i < c; i++){
             DC d = new DC(i, q, p);
@@ -252,6 +248,7 @@ public class Scheduler {
             d.start();
         }
     }
+    // End Code changes by Milan Haydel C00419477
 
     // Done by Chris Walther C00408978
     // This method sorts the order of queue by descending order from the shortest burst time to longest.
