@@ -40,17 +40,20 @@ class DC extends Thread {
             Scheduler.rMtx.release();
             int i = 0;
 
-            while (Scheduler.tasksDone.get() != Scheduler.totalTasks) {
-                System.out.println("WAITING " + cpuName);
+            while (Scheduler.tasksDone.get() != Scheduler.totalTasks
+                    && Scheduler.queue.size()!=0) {
+                //System.out.println("WAITING " + cpuName);
                 Scheduler.rMtx.acquire();
-                System.out.println("DONE WAITING " + cpuName);
+                //System.out.println("DONE WAITING " + cpuName);
                 if (Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()) {
                     CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
-                    System.out.println("NEW " + cpuName + " " + Scheduler.qMtx.availablePermits());
+                    //System.out.println("NEW " + cpuName + " " + Scheduler.qMtx.availablePermits());
 
                     try {
                         Scheduler.qMtx.acquire();
+                        //System.out.println("qMtx " + cpuName);
                         Task t = Scheduler.queue.remove(0);
+                        //System.out.println("task remove  " + cpuName + " task id : " + t.id);
                         if (!p) {
                             Scheduler.qMtx.release();
                             Scheduler.rMtx.release();
@@ -64,19 +67,20 @@ class DC extends Thread {
                         System.out.println();
                         Use.print(
                                 disName,
-                                "Running Process " + t.id + " on CPU " + cpu.id
+                                "Running Process " + t.id
                         );
                         load(cpu, t);
+                        //System.out.println(cpuName + " done");
                     } catch (IndexOutOfBoundsException e) {
                     }
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
                 }
                 else {
                     Scheduler.rMtx.release();
-                    System.out.println("ELSE");
+                    //System.out.println("ELSE");
                 }
                 i++;
-                System.out.println(cpuName + " DONE");
+                //System.out.println(cpuName + " DONE");
             }
         } catch (Exception e) {
             System.out.println(
@@ -84,7 +88,7 @@ class DC extends Thread {
                             "\n" + e
             );
         }
-        System.out.println(cpuName + " is done ; rMtx " + Scheduler.rMtx.availablePermits());
+        //System.out.println(cpuName + " is done ; rMtx " + Scheduler.rMtx.availablePermits());
     }
 
     public void load(CPU cpu, Task t) {
