@@ -11,7 +11,7 @@ class DC extends Thread {
      * P : PSJF (uses shorter burst time)
      */
 
-    String disName;
+    String disName, cpuName;
     static int id, q;
     boolean p;
     static Semaphore none = new Semaphore(1);
@@ -21,6 +21,7 @@ class DC extends Thread {
         super(String.valueOf(C));
         this.id = C;
         this.disName = "Dispatcher " + id;
+        this.cpuName = "CPU " + id;
         this.q = Q;
         this.p = P;
     }
@@ -30,7 +31,7 @@ class DC extends Thread {
             Scheduler.rMtx.acquire();
             Use.print(
                     disName,
-                    "Using CPU " + id
+                    ("Using " + cpuName)
             );
             Use.print(
                     disName,
@@ -40,16 +41,22 @@ class DC extends Thread {
             int i = 0;
 
             while (Scheduler.tasksDone.get() != Scheduler.totalTasks) {
+                System.out.println("WAITING " + cpuName);
                 Scheduler.rMtx.acquire();
+                System.out.println("DONE WAITING " + cpuName);
                 if (Scheduler.cpu[i % Scheduler.cpu.length].mtx.tryAcquire()) {
                     CPU cpu = Scheduler.cpu[i % Scheduler.cpu.length];
+                    System.out.println("NEW " + cpuName + " " + Scheduler.qMtx.availablePermits());
 
                     try {
                         Scheduler.qMtx.acquire();
                         Task t = Scheduler.queue.remove(0);
-                        if (!p) {Scheduler.qMtx.release();
-                        Scheduler.rMtx.release();}
-                        else if (p && t.burstCount != 0){Scheduler.qMtx.release();
+                        if (!p) {
+                            Scheduler.qMtx.release();
+                            Scheduler.rMtx.release();
+                        }
+                        else if (p && t.burstCount != 0){
+                            Scheduler.qMtx.release();
                             Scheduler.rMtx.release();
                         }
                         // hold the qmtx and release it after each burst
@@ -57,15 +64,19 @@ class DC extends Thread {
                         System.out.println();
                         Use.print(
                                 disName,
-                                "Running Process " + t.id
+                                "Running Process " + t.id + " on CPU " + cpu.id
                         );
                         load(cpu, t);
                     } catch (IndexOutOfBoundsException e) {
                     }
                     Scheduler.cpu[i % Scheduler.cpu.length].mtx.release();
                 }
+                else {
+                    Scheduler.rMtx.release();
+                    System.out.println("ELSE");
+                }
                 i++;
-
+                System.out.println(cpuName + " DONE");
             }
         } catch (Exception e) {
             System.out.println(
@@ -73,6 +84,7 @@ class DC extends Thread {
                             "\n" + e
             );
         }
+        System.out.println(cpuName + " is done ; rMtx " + Scheduler.rMtx.availablePermits());
     }
 
     public void load(CPU cpu, Task t) {
