@@ -11,7 +11,8 @@ public class Scheduler {
     static Semaphore qMtx = new Semaphore(1),
             cMtx = new Semaphore(1),
             rMtx = new Semaphore(1),
-            createTsks = new Semaphore(0);;
+            createTsks = new Semaphore(0),
+            none = new Semaphore(0);
     // qMtx used in createTasks for the queue
     // cMtx used in Task
 
@@ -30,7 +31,7 @@ public class Scheduler {
 
 
     // Code from Chris Walther C00408978 ---
-    boolean randomTasks = false; // Set to false for handling Task 1 Question 1 and set to true standardly
+    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
     // ---
 
     // Done by Milan Haydel C00419477
@@ -113,12 +114,12 @@ public class Scheduler {
             int m = Use.randNum(c,10);
             totalTasks = m;
             createTasks(m, false);
-        } else {createTasks(3, false); totalTasks = 3;}
+        } else {createTasks(1, false); totalTasks = 1;}
         int n;
         if (randomTasks){
             n = Use.randNum(1, 15);
             totalTasks = totalTasks + n;
-        } else {n = 2; totalTasks = totalTasks + 2;}
+        } else {n = 4; totalTasks = totalTasks + n;}
         try {
             sortQueue();
         } catch (InterruptedException e) {
@@ -189,23 +190,26 @@ public class Scheduler {
                 }
                 // ---
 
-                qMtx.acquire();
-                queue.add(t);
-                qMtx.release();
-
                 if (n){
+                    none.acquire();
+                    DC.none.acquire();
+                    qMtx.acquire();
+                    queue.add(t);
+                    qMtx.release();
                     sortQueue();
-                    // Use.print(name, "Creating thread " + taskCount);
+                    //Use.print(name, "Creating thread " + taskCount);
                     printQueue();
+                    DC.preempTask.getAndDecrement();
+                    DC.none.release();
                 }
-                else Use.print(name, "Creating thread " + taskCount);
+                else {
+                    qMtx.acquire();
+                    queue.add(t);
+                    qMtx.release();
+                    Use.print(name, "Creating thread " + taskCount);
+                }
 
                 taskCount++;
-                // System.out.print("\nTasks Made: " + taskCount + " Total Tasks to Make:  " + totalTasks);
-                /*if (taskCount == totalTasks && n) {
-                    System.out.println("release");
-                    finishedTsks.release();
-                }*/
             } catch (Exception e) {}
         }
     }
