@@ -31,7 +31,7 @@ public class Scheduler {
 
 
     // Code from Chris Walther C00408978 ---
-    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
+    boolean randomTasks = false; // Set to false for handling Task 1 Question 1 and set to true standardly
     // ---
 
     // Done by Milan Haydel C00419477
@@ -94,8 +94,8 @@ public class Scheduler {
         forking(c, 0, false);
     }
 
-    // Code by Milan Haydel C00419477
-    // Revised by Chris Walther C00408978
+    // Code by Chris Walther C00408978
+    // Revised by Milan Haydel C00419477
     private void PSJF(int c) {
         /*
          * The number of tasks for PSJF specifically (and only)
@@ -108,7 +108,6 @@ public class Scheduler {
          * The new set of tasks (1-15) is the other half of the
          * tasks range: [1-25].
          */
-        // Code by Chris Walther C00408978 ---
         // Revised by Milan Haydel C00419477
         if (randomTasks){
             int m = Use.randNum(c,10);
@@ -147,14 +146,6 @@ public class Scheduler {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            // Code by Chris Walther C00408978 ---
-            /*try {
-                sortQueue();
-                printQueue();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }*/
-            // ---
         }
     }
 
@@ -197,7 +188,6 @@ public class Scheduler {
                     queue.add(t);
                     qMtx.release();
                     sortQueue();
-                    //Use.print(name, "Creating thread " + taskCount);
                     printQueue();
                     DC.preempTask.getAndDecrement();
                     DC.none.release();

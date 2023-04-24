@@ -5,16 +5,17 @@ public class Task extends Thread implements Comparable<Task> {
     String name;
     int id, burst, burstCount = 0;
     CPU cpu;
-    public Task(int id){
+
+    public Task(int id) {
         // create variable for number of CPU burst time
         // that tasks run for [1-50] : burst
         super(String.valueOf(id));
         this.id = id;
         this.name = "Proc. Thread " + id;
-        this.burst = Use.randNum(1,50);
+        this.burst = Use.randNum(1, 50);
     }
 
-    public Task(Task t){
+    public Task(Task t) {
         super(String.valueOf(t.id));
         this.id = t.id;
         this.name = t.name;
@@ -47,35 +48,35 @@ public class Task extends Thread implements Comparable<Task> {
 
     // ---
 
-    public void run(){
+    public void run() {
         // use a try catch statement if you want with the while loop inside.
 
         // use the CPU.cc Semaphore in the while loop (in addition to other things).
         // the cc Semaphore is only used for bursts
         // it is released in CPU.burst and acquired in this
         // while loop before completing burst(s)
-        try{
+        try {
 
-        while (this.burstCount < this.burst && this.cpu.cc.tryAcquire()){
-            Scheduler.cMtx.acquire();
-            System.out.printf(
-                    "\n%-15s | Using CPU %1s On Burst:%2d; Remaining:%2d",
-                    name, this.cpu.id, ++this.burstCount, (this.burst-this.burstCount)
-            );
-            Scheduler.cMtx.release();
+            // Code changes begin by Patrick Leleux c00449233
+            while (this.burstCount < this.burst && this.cpu.cc.tryAcquire()) {
+                Scheduler.cMtx.acquire();
+                System.out.printf(
+                        "\n%-15s | Using CPU %1s On Burst:%2d; Remaining:%2d",
+                        name, this.cpu.id, ++this.burstCount, (this.burst - this.burstCount)
+                );
+                Scheduler.cMtx.release();
+            }
+            // Code changes end by Patrick Leleux c00449233
+            if (this.burstCount == this.burst) {
+                Scheduler.tasksDone.getAndIncrement();
+            }
+        } catch (Exception e) {
         }
-        if (this.burstCount == this.burst){
-            Scheduler.tasksDone.getAndIncrement();
-        }
-        } catch (Exception e) {}
         //getEndTime();
     }
 
-    public void setCPU(CPU cpu, int bg){
+    public void setCPU(CPU cpu, int bg) {
         this.cpu = cpu;
-
-        // wait += Scheduler.pc - arr;
-
         Use.print(
                 name,
                 // Max Burst

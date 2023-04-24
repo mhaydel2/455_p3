@@ -45,20 +45,12 @@ class DC extends Thread {
 
             while (Scheduler.tasksDone.get() != Scheduler.totalTasks
                     && Scheduler.queue.size()!=0) {
-                //System.out.println("WAITING " + cpuName);
                 Scheduler.rMtx.acquire();
-                //System.out.println("DONE WAITING " + cpuName);
-                //System.out.println(cpuName + " id " + this.id);
                 if (Scheduler.cpu[getID()].mtx.tryAcquire()) {
                     CPU cpu = Scheduler.cpu[getID()];
-                    //System.out.println("NEW " + cpuName + " " + Scheduler.qMtx.availablePermits());
-                    //System.out.println("NEW " + cpuName + " id " + this.id + " getID " + getID());
-
                     try {
                         Scheduler.qMtx.acquire();
-                        //System.out.println("qMtx " + cpuName);
                         Task t = Scheduler.queue.remove(0);
-                        //System.out.println("task remove  " + cpuName + " task id : " + t.id);
                         if (!p) {
                             Scheduler.qMtx.release();
                             Scheduler.rMtx.release();
@@ -75,16 +67,13 @@ class DC extends Thread {
                                 "Running Process " + t.id
                         );
                         load(cpu, t);
-                        //System.out.println(cpuName + " done");
                     } catch (IndexOutOfBoundsException e) {}
                     Scheduler.cpu[getID()].mtx.release();
                 }
                 else {
                     Scheduler.rMtx.release();
-                    //System.out.println("ELSE");
                 }
                 i++;
-                //System.out.println(cpuName + " DONE");
             }
         } catch (Exception e) {
             System.out.println(
@@ -92,7 +81,6 @@ class DC extends Thread {
                             "\n" + e
             );
         }
-        //System.out.println(cpuName + " is done ; rMtx " + Scheduler.rMtx.availablePermits());
     }
 
     public void load(CPU cpu, Task t) {
@@ -104,7 +92,6 @@ class DC extends Thread {
             if (t.burstCount != t.burst) {
                 try {
                     Scheduler.qMtx.acquire();
-                    // t.arr = Scheduler.pc;
                     Scheduler.queue.add(t);
                     Scheduler.qMtx.release();
                 } catch (Exception e) {
