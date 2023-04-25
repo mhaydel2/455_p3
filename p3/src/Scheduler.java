@@ -1,6 +1,4 @@
-import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,7 +29,7 @@ public class Scheduler {
 
 
     // Code from Chris Walther C00408978 ---
-    boolean randomTasks = false; // Set to false for handling Task 1 Question 1 and set to true standardly
+    boolean randomTasks = true; // Set to false for handling Task 1 Question 1 and set to true standardly
     // ---
 
     // Done by Milan Haydel C00419477

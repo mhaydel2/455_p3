@@ -5,17 +5,13 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        /*
-        // Time code by Chris Walther C00408978
-        // Comment out time code during normal operation and uncomment out for use on Task 1 Question 1
-        long start = System.currentTimeMillis();
-        System.out.println("Timer start");
-        // Other code in between
-        long end = System.currentTimeMillis();
-        System.out.println("Timer end");
-        System.out.println("Elapsed Time in milliseconds: "+ (end-start));
-         */
         boolean runtimeMeasure = false, usedC = false, usedS = false;
+        /*
+         * runtimeMeasure is used for report. Change boolean value to
+         * true when wanting to calculate the runtime for one of the
+         * algorithms.
+         */
+
         int S = 0, C = 1, quanT = 0;
 
 
@@ -126,21 +122,10 @@ public class Main {
             System.out.println(
                     "\n\tTime Quantum: " + quanT + "\n\tCores: " + C
             );
-            /*
-            // Time code by Chris Walther C00408978
-            // Comment out time code during normal operation and uncomment out for use on Task 1 Question 1
-            long start = System.currentTimeMillis();
-            System.out.println("Timer start");
-            // call scheduler
-            new Scheduler(S, quanT, C);
-            long end = System.currentTimeMillis();
-            System.out.println("Timer end");
-            System.out.println("Elapsed Time in milliseconds: "+ (end-start));
-            */
 
+            // Time code
+            // Begin code changes by Chris Walther C00408978
             if (runtimeMeasure) {
-                // Time code by Chris Walther C00408978
-                // Comment out time code during normal operation and uncomment out for use on Task 1 Question 1
                 long start = System.currentTimeMillis();
                 System.out.println("Timer start");
 
@@ -150,6 +135,7 @@ public class Main {
                 long end = System.currentTimeMillis();
                 System.out.println("Timer end");
                 System.out.println("Elapsed Time in milliseconds: " + (end - start));
+                // End code changes by Chris Walther C00408978
             } else {
                 // call scheduler
                 new Scheduler(S, quanT, C);
